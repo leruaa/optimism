@@ -5,6 +5,8 @@ import { CommonTest } from "test/setup/CommonTest.sol";
 import { EIP1967Helper } from "test/mocks/EIP1967Helper.sol";
 import { Predeploys } from "src/libraries/Predeploys.sol";
 
+import "forge-std/console.sol";
+
 /// @title PredeploysTest
 contract PredeploysBaseTest is CommonTest {
     //////////////////////////////////////////////////////
@@ -30,8 +32,8 @@ contract PredeploysBaseTest is CommonTest {
     /// @dev Returns true if the predeploy uses immutables.
     function _usesImmutables(address _addr) internal pure returns (bool) {
         return _addr == Predeploys.OPTIMISM_MINTABLE_ERC721_FACTORY || _addr == Predeploys.SEQUENCER_FEE_WALLET
-            || _addr == Predeploys.BASE_FEE_VAULT || _addr == Predeploys.L1_FEE_VAULT || _addr == Predeploys.EAS
-            || _addr == Predeploys.GOVERNANCE_TOKEN;
+            || _addr == Predeploys.BASE_FEE_VAULT || _addr == Predeploys.L1_FEE_VAULT || _addr == Predeploys.OPERATOR_FEE_VAULT
+            || _addr == Predeploys.EAS || _addr == Predeploys.GOVERNANCE_TOKEN;
     }
 
     function test_predeployToCodeNamespace_works() external pure {
@@ -103,6 +105,8 @@ contract PredeploysBaseTest is CommonTest {
             if (!_usesImmutables(addr) && !_interopCodeDiffer(addr)) {
                 // can't check bytecode if it's modified with immutables in genesis.
                 assertEq(implAddr.code, supposedCode, "proxy implementation contract should match contract source");
+                console.log("addr", addr);
+                // console.log("supposedCode", supposedCode);
             }
 
             if (_isInitializable(addr)) {
