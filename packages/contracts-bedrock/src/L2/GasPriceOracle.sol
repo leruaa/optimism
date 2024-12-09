@@ -7,8 +7,8 @@ import { Predeploys } from "src/libraries/Predeploys.sol";
 import { Constants } from "src/libraries/Constants.sol";
 
 // Interfaces
-import { ISemver } from "src/universal/interfaces/ISemver.sol";
-import { IL1Block } from "src/L2/interfaces/IL1Block.sol";
+import { ISemver } from "interfaces/universal/ISemver.sol";
+import { IL1Block } from "interfaces/L2/IL1Block.sol";
 
 /// @custom:proxied true
 /// @custom:predeploy 0x420000000000000000000000000000000000000F
@@ -29,8 +29,8 @@ contract GasPriceOracle is ISemver {
     uint256 public constant DECIMALS = 6;
 
     /// @notice Semantic version.
-    /// @custom:semver 1.3.1-beta.2
-    string public constant version = "1.3.1-beta.2";
+    /// @custom:semver 1.3.1-beta.4
+    string public constant version = "1.3.1-beta.4";
 
     /// @notice This is the intercept value for the linear regression used to estimate the final size of the
     ///         compressed transaction.
@@ -49,6 +49,9 @@ contract GasPriceOracle is ISemver {
 
     /// @notice Indicates whether the network has gone through the Fjord upgrade.
     bool public isFjord;
+
+    /// @notice Indicates whether the network has gone through the Isthmus upgrade.
+    bool public isIsthmus;
 
     /// @notice Computes the L1 portion of the fee based on the size of the rlp encoded input
     ///         transaction, the current L1 base fee, and the various dynamic parameters.
@@ -74,7 +77,7 @@ contract GasPriceOracle is ISemver {
 
         // Add 68 to the size to account for unsigned tx:
         uint256 txSize = _unsignedTxSize + 68;
-        // txSize / 255 + 16 is the pratical fastlz upper-bound covers %99.99 txs.
+        // txSize / 255 + 16 is the practical fastlz upper-bound covers %99.99 txs.
         uint256 flzUpperBound = txSize + txSize / 255 + 16;
 
         return _fjordL1Cost(flzUpperBound);
@@ -98,6 +101,16 @@ contract GasPriceOracle is ISemver {
         require(isEcotone, "GasPriceOracle: Fjord can only be activated after Ecotone");
         require(isFjord == false, "GasPriceOracle: Fjord already active");
         isFjord = true;
+    }
+
+    /// @notice Set chain to be Isthmus chain (callable by depositor account)
+    function setIsthmus() external {
+        require(
+            msg.sender == Constants.DEPOSITOR_ACCOUNT, "GasPriceOracle: only the depositor account can set isIsthmus flag"
+        );
+        require(isFjord, "GasPriceOracle: Isthmus can only be activated after Fjord");
+        require(isIsthmus == false, "GasPriceOracle: Isthmus already active");
+        isIsthmus = true;
     }
 
     /// @notice Retrieves the current gas price (base fee).
@@ -177,6 +190,15 @@ contract GasPriceOracle is ISemver {
             return l1GasUsed;
         }
         return l1GasUsed + IL1Block(Predeploys.L1_BLOCK_ATTRIBUTES).l1FeeOverhead();
+    }
+
+    function getOperatorFee(uint256 gasUsed) public view returns (uint256) {
+        if (!isIsthmus) {
+            return 0;
+        }
+
+        return (gasUsed * IL1Block(Predeploys.L1_BLOCK_ATTRIBUTES).operatorFeeScalar() / 1e6)
+            + IL1Block(Predeploys.L1_BLOCK_ATTRIBUTES).operatorFeeConstant();
     }
 
     /// @notice Computation of the L1 portion of the fee for Bedrock.

@@ -3,21 +3,23 @@ pragma solidity 0.8.15;
 
 import { Test, stdStorage, StdStorage } from "forge-std/Test.sol";
 
-import { DeployOPChainInput } from "scripts/DeployOPChain.s.sol";
+import { DeployOPChainInput } from "scripts/deploy/DeployOPChain.s.sol";
 import { DeployOPChain_TestBase } from "test/opcm/DeployOPChain.t.sol";
 
 import { OPContractsManager } from "src/L1/OPContractsManager.sol";
-import { SuperchainConfig } from "src/L1/SuperchainConfig.sol";
-import { ProtocolVersions } from "src/L1/ProtocolVersions.sol";
-import { SystemConfig } from "src/L1/SystemConfig.sol";
+import { ISuperchainConfig } from "interfaces/L1/ISuperchainConfig.sol";
+import { IProtocolVersions } from "interfaces/L1/IProtocolVersions.sol";
 
 // Exposes internal functions for testing.
 contract OPContractsManager_Harness is OPContractsManager {
     constructor(
-        SuperchainConfig _superchainConfig,
-        ProtocolVersions _protocolVersions
+        ISuperchainConfig _superchainConfig,
+        IProtocolVersions _protocolVersions,
+        string memory _l1ContractsRelease,
+        Blueprints memory _blueprints,
+        Implementations memory _implementations
     )
-        OPContractsManager(_superchainConfig, _protocolVersions)
+        OPContractsManager(_superchainConfig, _protocolVersions, _l1ContractsRelease, _blueprints, _implementations)
     { }
 
     function chainIdToBatchInboxAddress_exposed(uint256 l2ChainId) public pure returns (address) {
@@ -50,7 +52,15 @@ contract OPContractsManager_Deploy_Test is DeployOPChain_TestBase {
         doi.set(doi.basefeeScalar.selector, basefeeScalar);
         doi.set(doi.blobBaseFeeScalar.selector, blobBaseFeeScalar);
         doi.set(doi.l2ChainId.selector, l2ChainId);
-        doi.set(doi.opcmProxy.selector, address(opcm));
+        doi.set(doi.opcm.selector, address(opcm));
+        doi.set(doi.gasLimit.selector, gasLimit);
+
+        doi.set(doi.disputeGameType.selector, disputeGameType);
+        doi.set(doi.disputeAbsolutePrestate.selector, disputeAbsolutePrestate);
+        doi.set(doi.disputeMaxGameDepth.selector, disputeMaxGameDepth);
+        doi.set(doi.disputeSplitDepth.selector, disputeSplitDepth);
+        doi.set(doi.disputeClockExtension.selector, disputeClockExtension);
+        doi.set(doi.disputeMaxClockDuration.selector, disputeMaxClockDuration);
     }
 
     // This helper function is used to convert the input struct type defined in DeployOPChain.s.sol
@@ -69,7 +79,14 @@ contract OPContractsManager_Deploy_Test is DeployOPChain_TestBase {
             blobBasefeeScalar: _doi.blobBaseFeeScalar(),
             l2ChainId: _doi.l2ChainId(),
             startingAnchorRoots: _doi.startingAnchorRoots(),
-            saltMixer: _doi.saltMixer()
+            saltMixer: _doi.saltMixer(),
+            gasLimit: _doi.gasLimit(),
+            disputeGameType: _doi.disputeGameType(),
+            disputeAbsolutePrestate: _doi.disputeAbsolutePrestate(),
+            disputeMaxGameDepth: _doi.disputeMaxGameDepth(),
+            disputeSplitDepth: _doi.disputeSplitDepth(),
+            disputeClockExtension: _doi.disputeClockExtension(),
+            disputeMaxClockDuration: _doi.disputeMaxClockDuration()
         });
     }
 
@@ -100,14 +117,19 @@ contract OPContractsManager_InternalMethods_Test is Test {
     OPContractsManager_Harness opcmHarness;
 
     function setUp() public {
-        SuperchainConfig superchainConfigProxy = SuperchainConfig(makeAddr("superchainConfig"));
-        ProtocolVersions protocolVersionsProxy = ProtocolVersions(makeAddr("protocolVersions"));
+        ISuperchainConfig superchainConfigProxy = ISuperchainConfig(makeAddr("superchainConfig"));
+        IProtocolVersions protocolVersionsProxy = IProtocolVersions(makeAddr("protocolVersions"));
+        OPContractsManager.Blueprints memory emptyBlueprints;
+        OPContractsManager.Implementations memory emptyImpls;
         vm.etch(address(superchainConfigProxy), hex"01");
         vm.etch(address(protocolVersionsProxy), hex"01");
 
         opcmHarness = new OPContractsManager_Harness({
             _superchainConfig: superchainConfigProxy,
-            _protocolVersions: protocolVersionsProxy
+            _protocolVersions: protocolVersionsProxy,
+            _l1ContractsRelease: "dev",
+            _blueprints: emptyBlueprints,
+            _implementations: emptyImpls
         });
     }
 

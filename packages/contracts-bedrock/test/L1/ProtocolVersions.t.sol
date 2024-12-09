@@ -1,18 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-// Testing utilities
+// Testing
 import { CommonTest } from "test/setup/CommonTest.sol";
 import { EIP1967Helper } from "test/mocks/EIP1967Helper.sol";
 
-// Libraries
-import { Constants } from "src/libraries/Constants.sol";
-
-// Target contract dependencies
-import { Proxy } from "src/universal/Proxy.sol";
-
-// Target contract
-import { IProtocolVersions, ProtocolVersion } from "src/L1/interfaces/IProtocolVersions.sol";
+// Interfaces
+import { IProxy } from "interfaces/universal/IProxy.sol";
+import { IProtocolVersions, ProtocolVersion } from "interfaces/L1/IProtocolVersions.sol";
 
 contract ProtocolVersions_Init is CommonTest {
     event ConfigUpdate(uint256 indexed version, IProtocolVersions.UpdateType indexed updateType, bytes data);
@@ -57,7 +52,7 @@ contract ProtocolVersions_Initialize_Test is ProtocolVersions_Init {
         emit ConfigUpdate(0, IProtocolVersions.UpdateType.RECOMMENDED_PROTOCOL_VERSION, abi.encode(recommended));
 
         vm.prank(EIP1967Helper.getAdmin(address(protocolVersions)));
-        Proxy(payable(address(protocolVersions))).upgradeToAndCall(
+        IProxy(payable(address(protocolVersions))).upgradeToAndCall(
             address(protocolVersionsImpl),
             abi.encodeCall(
                 IProtocolVersions.initialize,

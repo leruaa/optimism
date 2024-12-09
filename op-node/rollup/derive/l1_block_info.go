@@ -20,13 +20,13 @@ import (
 const (
 	L1InfoFuncBedrockSignature  = "setL1BlockValues(uint64,uint64,uint256,bytes32,uint64,bytes32,uint256,uint256)"
 	L1InfoFuncEcotoneSignature  = "setL1BlockValuesEcotone()"
-	L1InfoFuncHoloceneSignature = "setL1BlockValuesHolocene()"
+	L1InfoFuncIsthmusSignature  = "setL1BlockValuesIsthmus()"
 	L1InfoFuncInteropSignature  = "setL1BlockValuesInterop()"
 	DepositsCompleteSignature   = "depositsComplete()"
 	L1InfoArguments             = 8
 	L1InfoBedrockLen            = 4 + 32*L1InfoArguments
 	L1InfoEcotoneLen            = 4 + 32*5         // after Ecotone upgrade, args are packed into 5 32-byte slots
-	L1InfoHoloceneLen           = 4 + 32*5 + 4 + 8 // after Holocene upgrade, additionally pack in operator fee scalar and constant
+	L1InfoIsthmusLen            = 4 + 32*5 + 4 + 8 // after Isthmus upgrade, additionally pack in operator fee scalar and constant
 	DepositsCompleteLen         = 4                // only the selector
 	// DepositsCompleteGas allocates 21k gas for intrinsic tx costs, and
 	// an additional 15k to ensure that the DepositsComplete call does not run out of gas.
@@ -39,7 +39,7 @@ const (
 var (
 	L1InfoFuncBedrockBytes4  = crypto.Keccak256([]byte(L1InfoFuncBedrockSignature))[:4]
 	L1InfoFuncEcotoneBytes4  = crypto.Keccak256([]byte(L1InfoFuncEcotoneSignature))[:4]
-	L1InfoFuncHoloceneBytes4 = crypto.Keccak256([]byte(L1InfoFuncHoloceneSignature))[:4]
+	L1InfoFuncIsthmusBytes4  = crypto.Keccak256([]byte(L1InfoFuncIsthmusSignature))[:4]
 	L1InfoFuncInteropBytes4  = crypto.Keccak256([]byte(L1InfoFuncInteropSignature))[:4]
 	DepositsCompleteBytes4   = crypto.Keccak256([]byte(DepositsCompleteSignature))[:4]
 	L1InfoDepositerAddress   = common.HexToAddress("0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001")
@@ -70,8 +70,8 @@ type L1BlockInfo struct {
 	BaseFeeScalar     uint32   // added by Ecotone upgrade
 	BlobBaseFeeScalar uint32   // added by Ecotone upgrade
 
-	OperatorFeeScalar   uint32 // added by Holocene upgrade
-	OperatorFeeConstant uint64 // added by Holocene upgrade
+	OperatorFeeScalar   uint32 // added by Isthmus upgrade
+	OperatorFeeConstant uint64 // added by Isthmus upgrade
 }
 
 // Bedrock Binary Format
@@ -193,7 +193,7 @@ func (info *L1BlockInfo) marshalBinaryInterop() ([]byte, error) {
 	return out, nil
 }
 
-// Holocene Binary Format
+// Isthmus Binary Format
 // +---------+--------------------------+
 // | Bytes   | Field                    |
 // +---------+--------------------------+
@@ -211,9 +211,9 @@ func (info *L1BlockInfo) marshalBinaryInterop() ([]byte, error) {
 // | 8       | OperatorFeeConstant      |
 // +---------+--------------------------+
 
-func (info *L1BlockInfo) marshalBinaryHolocene() ([]byte, error) {
-	w := bytes.NewBuffer(make([]byte, 0, L1InfoHoloceneLen)) // Ecotone and Isthmus have the same length
-	if err := solabi.WriteSignature(w, []byte(L1InfoFuncHoloceneBytes4)); err != nil {
+func (info *L1BlockInfo) marshalBinaryIsthmus() ([]byte, error) {
+	w := bytes.NewBuffer(make([]byte, 0, L1InfoIsthmusLen)) // Ecotone and Isthmus have the same length
+	if err := solabi.WriteSignature(w, []byte(L1InfoFuncIsthmusBytes4)); err != nil {
 		return nil, err
 	}
 	if err := binary.Write(w, binary.BigEndian, info.BaseFeeScalar); err != nil {
@@ -349,14 +349,14 @@ func unmarshalBinaryWithSignatureAndData(info *L1BlockInfo, signature []byte, da
 	return nil
 }
 
-func (info *L1BlockInfo) unmarshalBinaryHolocene(data []byte) error {
-	if len(data) != L1InfoHoloceneLen {
+func (info *L1BlockInfo) unmarshalBinaryIsthmus(data []byte) error {
+	if len(data) != L1InfoIsthmusLen {
 		return fmt.Errorf("data is unexpected length: %d", len(data))
 	}
 	r := bytes.NewReader(data)
 
 	var err error
-	if _, err := solabi.ReadAndValidateSignature(r, L1InfoFuncHoloceneBytes4); err != nil {
+	if _, err := solabi.ReadAndValidateSignature(r, L1InfoFuncIsthmusBytes4); err != nil {
 		return err
 	}
 	if err := binary.Read(r, binary.BigEndian, &info.BaseFeeScalar); err != nil {
@@ -419,10 +419,10 @@ func isInteropButNotFirstBlock(rollupCfg *rollup.Config, l2Timestamp uint64) boo
 	return rollupCfg.IsInterop(l2Timestamp) && !rollupCfg.IsInteropActivationBlock(l2Timestamp)
 }
 
-// isHoloceneButNotFirstBlock returns whether the specified block is subject to the Holocene upgrade,
+// isIsthmusButNotFirstBlock returns whether the specified block is subject to the Isthmus upgrade,
 // but is not the activation block itself.
-func isHoloceneButNotFirstBlock(rollupCfg *rollup.Config, l2Timestamp uint64) bool {
-	return rollupCfg.IsHolocene(l2Timestamp) && !rollupCfg.IsHoloceneActivationBlock(l2Timestamp)
+func isIsthmusButNotFirstBlock(rollupCfg *rollup.Config, l2Timestamp uint64) bool {
+	return rollupCfg.IsIsthmus(l2Timestamp) && !rollupCfg.IsIsthmusActivationBlock(l2Timestamp)
 }
 
 // L1BlockInfoFromBytes is the inverse of L1InfoDeposit, to see where the L2 chain is derived from
@@ -432,8 +432,8 @@ func L1BlockInfoFromBytes(rollupCfg *rollup.Config, l2BlockTime uint64, data []b
 	if isInteropButNotFirstBlock(rollupCfg, l2BlockTime) {
 		return &info, info.unmarshalBinaryInterop(data)
 	}
-	if isHoloceneButNotFirstBlock(rollupCfg, l2BlockTime) {
-		return &info, info.unmarshalBinaryHolocene(data)
+	if isIsthmusButNotFirstBlock(rollupCfg, l2BlockTime) {
+		return &info, info.unmarshalBinaryIsthmus(data)
 	}
 	if isEcotoneButNotFirstBlock(rollupCfg, l2BlockTime) {
 		return &info, info.unmarshalBinaryEcotone(data)
@@ -471,10 +471,10 @@ func L1InfoDeposit(rollupCfg *rollup.Config, sysCfg eth.SystemConfig, seqNumber 
 				return nil, fmt.Errorf("failed to marshal Interop l1 block info: %w", err)
 			}
 			data = out
-		} else if isHoloceneButNotFirstBlock(rollupCfg, l2Timestamp) {
-			out, err := l1BlockInfo.marshalBinaryHolocene()
+		} else if isIsthmusButNotFirstBlock(rollupCfg, l2Timestamp) {
+			out, err := l1BlockInfo.marshalBinaryIsthmus()
 			if err != nil {
-				return nil, fmt.Errorf("failed to marshal Holocene l1 block info: %w", err)
+				return nil, fmt.Errorf("failed to marshal Isthmus l1 block info: %w", err)
 			}
 			data = out
 		} else {

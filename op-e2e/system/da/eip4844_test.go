@@ -34,13 +34,19 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 )
 
-// TestSystem4844E2E runs the SystemE2E test with 4844 enabled on L1, and active on the rollup in
+// TestSystem4844E2E* run the SystemE2E test with 4844 enabled on L1, and active on the rollup in
 // the op-batcher and verifier.  It submits a txpool-blocking transaction before running
 // each test to ensure the batcher is able to clear it.
-func TestSystem4844E2E(t *testing.T) {
-	t.Run("calldata", func(t *testing.T) { testSystem4844E2E(t, false, batcherFlags.CalldataType) })
-	t.Run("single-blob", func(t *testing.T) { testSystem4844E2E(t, false, batcherFlags.BlobsType) })
-	t.Run("multi-blob", func(t *testing.T) { testSystem4844E2E(t, true, batcherFlags.BlobsType) })
+func TestSystem4844E2E_Calldata(t *testing.T) {
+	testSystem4844E2E(t, false, batcherFlags.CalldataType)
+}
+
+func TestSystem4844E2E_SingleBlob(t *testing.T) {
+	testSystem4844E2E(t, false, batcherFlags.BlobsType)
+}
+
+func TestSystem4844E2E_MultiBlob(t *testing.T) {
+	testSystem4844E2E(t, true, batcherFlags.BlobsType)
 }
 
 func testSystem4844E2E(t *testing.T, multiBlob bool, daType batcherFlags.DataAvailabilityType) {
@@ -51,7 +57,6 @@ func testSystem4844E2E(t *testing.T, multiBlob bool, daType batcherFlags.DataAva
 	cfg.BatcherBatchType = derive.SpanBatchType
 	cfg.DeployConfig.L1GenesisBlockBaseFeePerGas = (*hexutil.Big)(big.NewInt(7000))
 
-	const maxBlobs = eth.MaxBlobsPerBlobTx
 	var maxL1TxSize int
 	if multiBlob {
 		cfg.BatcherTargetNumFrames = eth.MaxBlobsPerBlobTx
@@ -68,7 +73,7 @@ func testSystem4844E2E(t *testing.T, multiBlob bool, daType batcherFlags.DataAva
 	// is started, as is required by the function.
 	var jamChan chan error
 	jamCtx, jamCancel := context.WithTimeout(context.Background(), 20*time.Second)
-	action := e2esys.SystemConfigOption{
+	action := e2esys.StartOption{
 		Key: "beforeBatcherStart",
 		Action: func(cfg *e2esys.SystemConfig, s *e2esys.System) {
 			driver := s.BatchSubmitter.TestDriver()
@@ -114,7 +119,7 @@ func testSystem4844E2E(t *testing.T, multiBlob bool, daType batcherFlags.DataAva
 	require.NoError(t, err)
 	mintAmount := big.NewInt(1_000_000_000_000)
 	opts.Value = mintAmount
-	helpers.SendDepositTx(t, cfg, l1Client, l2Verif, opts, func(l2Opts *helpers.DepositTxOpts) {})
+	helpers.SendDepositTx(t, cfg, l1Client, l2Verif, opts, nil)
 
 	// Confirm balance
 	ctx2, cancel2 := context.WithTimeout(context.Background(), 20*time.Second)
@@ -208,7 +213,8 @@ func testSystem4844E2E(t *testing.T, multiBlob bool, daType batcherFlags.DataAva
 	if !multiBlob {
 		require.NotZero(t, numBlobs, "single-blob: expected to find L1 blob tx")
 	} else {
-		require.Equal(t, maxBlobs, numBlobs, fmt.Sprintf("multi-blob: expected to find L1 blob tx with %d blobs", eth.MaxBlobsPerBlobTx))
+		const maxBlobs = eth.MaxBlobsPerBlobTx
+		require.Equal(t, maxBlobs, numBlobs, fmt.Sprintf("multi-blob: expected to find L1 blob tx with %d blobs", maxBlobs))
 		// blob tx should have filled up all but last blob
 		bcl := sys.L1BeaconHTTPClient()
 		hashes := toIndexedBlobHashes(blobTx.BlobHashes()...)

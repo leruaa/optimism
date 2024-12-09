@@ -154,44 +154,44 @@ func TestParseL1InfoDepositTxData(t *testing.T) {
 		require.Equal(t, depTx.Gas, uint64(RegolithSystemTxGas))
 		require.Equal(t, L1InfoEcotoneLen, len(depTx.Data))
 	})
-	t.Run("holocene", func(t *testing.T) {
+	t.Run("isthmus", func(t *testing.T) {
 		rng := rand.New(rand.NewSource(1234))
 		info := testutils.MakeBlockInfo(nil)(rng)
 		rollupCfg := rollup.Config{BlockTime: 2, Genesis: rollup.Genesis{L2Time: 1000}}
-		rollupCfg.ActivateAtGenesis(rollup.Holocene)
-		// run 1 block after holocene transition
+		rollupCfg.ActivateAtGenesis(rollup.Isthmus)
+		// run 1 block after isthmus transition
 		timestamp := rollupCfg.Genesis.L2Time + rollupCfg.BlockTime
 		depTx, err := L1InfoDeposit(&rollupCfg, randomL1Cfg(rng, info), randomSeqNr(rng), info, timestamp)
 		require.NoError(t, err)
 		require.False(t, depTx.IsSystemTransaction)
 		require.Equal(t, depTx.Gas, uint64(RegolithSystemTxGas))
-		require.Equal(t, L1InfoHoloceneLen, len(depTx.Data))
+		require.Equal(t, L1InfoIsthmusLen, len(depTx.Data))
 	})
-	t.Run("activation-block holocene", func(t *testing.T) {
+	t.Run("activation-block isthmus", func(t *testing.T) {
 		rng := rand.New(rand.NewSource(1234))
 		info := testutils.MakeBlockInfo(nil)(rng)
 		rollupCfg := rollup.Config{BlockTime: 2, Genesis: rollup.Genesis{L2Time: 1000}}
 		rollupCfg.ActivateAtGenesis(rollup.Granite)
-		holoceneTime := rollupCfg.Genesis.L2Time + rollupCfg.BlockTime // activate isthmus just after genesis
-		rollupCfg.InteropTime = &holoceneTime
-		depTx, err := L1InfoDeposit(&rollupCfg, randomL1Cfg(rng, info), randomSeqNr(rng), info, holoceneTime)
+		isthmusTime := rollupCfg.Genesis.L2Time + rollupCfg.BlockTime // activate isthmus just after genesis
+		rollupCfg.InteropTime = &isthmusTime
+		depTx, err := L1InfoDeposit(&rollupCfg, randomL1Cfg(rng, info), randomSeqNr(rng), info, isthmusTime)
 		require.NoError(t, err)
 		require.False(t, depTx.IsSystemTransaction)
 		require.Equal(t, depTx.Gas, uint64(RegolithSystemTxGas))
-		// Holocene activates, but ecotone L1 info is still used at this upgrade block
+		// Isthmus activates, but ecotone L1 info is still used at this upgrade block
 		require.Equal(t, L1InfoEcotoneLen, len(depTx.Data))
 		require.Equal(t, L1InfoFuncEcotoneBytes4, depTx.Data[:4])
 	})
-	t.Run("genesis-block holocene", func(t *testing.T) {
+	t.Run("genesis-block isthmus", func(t *testing.T) {
 		rng := rand.New(rand.NewSource(1234))
 		info := testutils.MakeBlockInfo(nil)(rng)
 		rollupCfg := rollup.Config{BlockTime: 2, Genesis: rollup.Genesis{L2Time: 1000}}
-		rollupCfg.ActivateAtGenesis(rollup.Holocene)
+		rollupCfg.ActivateAtGenesis(rollup.Isthmus)
 		depTx, err := L1InfoDeposit(&rollupCfg, randomL1Cfg(rng, info), randomSeqNr(rng), info, rollupCfg.Genesis.L2Time)
 		require.NoError(t, err)
 		require.False(t, depTx.IsSystemTransaction)
 		require.Equal(t, depTx.Gas, uint64(RegolithSystemTxGas))
-		require.Equal(t, L1InfoHoloceneLen, len(depTx.Data))
+		require.Equal(t, L1InfoIsthmusLen, len(depTx.Data))
 	})
 	t.Run("interop", func(t *testing.T) {
 		rng := rand.New(rand.NewSource(1234))
@@ -218,9 +218,9 @@ func TestParseL1InfoDepositTxData(t *testing.T) {
 		require.NoError(t, err)
 		require.False(t, depTx.IsSystemTransaction)
 		require.Equal(t, depTx.Gas, uint64(RegolithSystemTxGas))
-		// Interop activates, but holocene L1 info is still used at this upgrade block
-		require.Equal(t, L1InfoHoloceneLen, len(depTx.Data))
-		require.Equal(t, L1InfoFuncHoloceneBytes4, depTx.Data[:4])
+		// Interop activates, but isthmus L1 info is still used at this upgrade block
+		require.Equal(t, L1InfoIsthmusLen, len(depTx.Data))
+		require.Equal(t, L1InfoFuncIsthmusBytes4, depTx.Data[:4])
 	})
 	t.Run("genesis-block interop", func(t *testing.T) {
 		rng := rand.New(rand.NewSource(1234))

@@ -79,7 +79,7 @@ var (
 		MinBaseFeeGwei:            1.0,
 		ResubmissionTimeout:       48 * time.Second,
 		NetworkTimeout:            10 * time.Second,
-		TxSendTimeout:             10 * time.Minute,
+		TxSendTimeout:             0, // Try sending txs indefinitely, to preserve tx ordering for Holocene
 		TxNotInMempoolTimeout:     2 * time.Minute,
 		ReceiptQueryInterval:      12 * time.Second,
 	}
@@ -191,7 +191,7 @@ func CLIFlagsWithDefaults(envPrefix string, defaults DefaultFlagValues) []cli.Fl
 			Value:   defaults.ReceiptQueryInterval,
 			EnvVars: prefixEnvVars("TXMGR_RECEIPT_QUERY_INTERVAL"),
 		},
-	}, opsigner.CLIFlags(envPrefix)...)
+	}, opsigner.CLIFlags(envPrefix, "")...)
 }
 
 type CLIConfig struct {
@@ -418,6 +418,10 @@ type Config struct {
 	// Signer is used to sign transactions when the gas price is increased.
 	Signer opcrypto.SignerFn
 	From   common.Address
+
+	// GasPriceEstimatorFn is used to estimate the gas price for a transaction.
+	// If nil, DefaultGasPriceEstimatorFn is used.
+	GasPriceEstimatorFn GasPriceEstimatorFn
 }
 
 func (m *Config) Check() error {
