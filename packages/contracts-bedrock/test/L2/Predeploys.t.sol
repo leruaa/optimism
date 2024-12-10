@@ -5,8 +5,6 @@ import { CommonTest } from "test/setup/CommonTest.sol";
 import { EIP1967Helper } from "test/mocks/EIP1967Helper.sol";
 import { Predeploys } from "src/libraries/Predeploys.sol";
 
-import "forge-std/console.sol";
-
 /// @title PredeploysTest
 contract PredeploysBaseTest is CommonTest {
     //////////////////////////////////////////////////////
@@ -105,8 +103,6 @@ contract PredeploysBaseTest is CommonTest {
             if (!_usesImmutables(addr) && !_interopCodeDiffer(addr)) {
                 // can't check bytecode if it's modified with immutables in genesis.
                 assertEq(implAddr.code, supposedCode, "proxy implementation contract should match contract source");
-                console.log("addr", addr);
-                // console.log("supposedCode", supposedCode);
             }
 
             if (_isInitializable(addr)) {
