@@ -467,7 +467,6 @@ contract SystemConfig is OwnableUpgradeable, ISemver, IGasToken {
         emit ConfigUpdate(VERSION, UpdateType.OPERATOR_FEE_PARAMS, data);
     }
 
-
     /// @notice Sets the start block in a backwards compatible way. Proxies
     ///         that were initialized before the startBlock existed in storage
     ///         can have their start block set by a user provided override.

@@ -106,7 +106,8 @@ contract GasPriceOracle is ISemver {
     /// @notice Set chain to be Isthmus chain (callable by depositor account)
     function setIsthmus() external {
         require(
-            msg.sender == Constants.DEPOSITOR_ACCOUNT, "GasPriceOracle: only the depositor account can set isIsthmus flag"
+            msg.sender == Constants.DEPOSITOR_ACCOUNT,
+            "GasPriceOracle: only the depositor account can set isIsthmus flag"
         );
         require(isFjord, "GasPriceOracle: Isthmus can only be activated after Fjord");
         require(isIsthmus == false, "GasPriceOracle: Isthmus already active");

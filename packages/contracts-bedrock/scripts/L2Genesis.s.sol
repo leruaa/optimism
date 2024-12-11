@@ -21,7 +21,7 @@ import { Types } from "src/libraries/Types.sol";
 import { ISequencerFeeVault } from "interfaces/L2/ISequencerFeeVault.sol";
 import { IBaseFeeVault } from "interfaces/L2/IBaseFeeVault.sol";
 import { IL1FeeVault } from "interfaces/L2/IL1FeeVault.sol";
-import { OperatorFeeVault } from "interfaces/L2/IOperatorFeeVault.sol";
+import { IOperatorFeeVault } from "interfaces/L2/IOperatorFeeVault.sol";
 import { IOptimismMintableERC721Factory } from "interfaces/universal/IOptimismMintableERC721Factory.sol";
 import { IGovernanceToken } from "interfaces/governance/IGovernanceToken.sol";
 import { IOptimismMintableERC20Factory } from "interfaces/universal/IOptimismMintableERC20Factory.sol";
@@ -495,11 +495,21 @@ contract L2Genesis is Deployer {
 
     /// @notice This predeploy is following the safety invariant #2.
     function setOperatorFeeVault() public {
-        OperatorFeeVault vault = new OperatorFeeVault({
-            _recipient: cfg.operatorFeeVaultRecipient(),
-            _minWithdrawalAmount: cfg.operatorFeeVaultMinimumWithdrawalAmount(),
-            _withdrawalNetwork: FeeVault.WithdrawalNetwork(cfg.operatorFeeVaultWithdrawalNetwork())
-        });
+        IOperatorFeeVault vault = IOperatorFeeVault(
+            DeployUtils.create1(
+                "OperatorFeeVault",
+                DeployUtils.encodeConstructor(
+                    abi.encodeCall(
+                        IOperatorFeeVault.__constructor__,
+                        (
+                            cfg.operatorFeeVaultRecipient(),
+                            cfg.operatorFeeVaultMinimumWithdrawalAmount(),
+                            Types.WithdrawalNetwork(cfg.operatorFeeVaultWithdrawalNetwork())
+                        )
+                    )
+                )
+            )
+        );
 
         address impl = Predeploys.predeployToCodeNamespace(Predeploys.OPERATOR_FEE_VAULT);
         console.log("Setting %s implementation at: %s", "OperatorFeeVault", impl);

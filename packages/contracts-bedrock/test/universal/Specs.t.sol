@@ -438,7 +438,11 @@ contract Specification_Test is CommonTest {
         _addSpec({ _name: "SystemConfig", _sel: ISystemConfig.setGasConfig.selector, _auth: Role.SYSTEMCONFIGOWNER });
         _addSpec({ _name: "SystemConfig", _sel: ISystemConfig.setGasLimit.selector, _auth: Role.SYSTEMCONFIGOWNER });
         _addSpec({ _name: "SystemConfig", _sel: ISystemConfig.setEIP1559Params.selector, _auth: Role.SYSTEMCONFIGOWNER });
-        _addSpec({ _name: "SystemConfig", _sel: ISystemConfig.setOperatorFeeScalars.selector, _auth: Role.SYSTEMCONFIGOWNER });
+        _addSpec({
+            _name: "SystemConfig",
+            _sel: ISystemConfig.setOperatorFeeScalars.selector,
+            _auth: Role.SYSTEMCONFIGOWNER
+        });
         _addSpec({
             _name: "SystemConfig",
             _sel: ISystemConfig.setUnsafeBlockSigner.selector,

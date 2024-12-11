@@ -15,7 +15,7 @@ contract FeeVault_Test is CommonTest {
         assertEq(operatorFeeVault.recipient(), deploy.cfg().operatorFeeVaultRecipient());
         assertEq(operatorFeeVault.MIN_WITHDRAWAL_AMOUNT(), deploy.cfg().operatorFeeVaultMinimumWithdrawalAmount());
         assertEq(operatorFeeVault.minWithdrawalAmount(), deploy.cfg().operatorFeeVaultMinimumWithdrawalAmount());
-        assertEq(uint8(operatorFeeVault.WITHDRAWAL_NETWORK()), uint8(FeeVault.WithdrawalNetwork.L1));
-        assertEq(uint8(operatorFeeVault.withdrawalNetwork()), uint8(FeeVault.WithdrawalNetwork.L1));
+        assertEq(uint8(operatorFeeVault.WITHDRAWAL_NETWORK()), uint8(Types.WithdrawalNetwork.L1));
+        assertEq(uint8(operatorFeeVault.withdrawalNetwork()), uint8(Types.WithdrawalNetwork.L1));
     }
 }
