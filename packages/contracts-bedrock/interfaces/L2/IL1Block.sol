@@ -36,6 +36,7 @@ interface IL1Block {
     )
         external;
     function setL1BlockValuesEcotone() external;
+    function setL1BlockValuesIsthmus() external;
     function timestamp() external view returns (uint64);
     function version() external pure returns (string memory);
 

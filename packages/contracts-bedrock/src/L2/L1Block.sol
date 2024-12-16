@@ -177,6 +177,46 @@ contract L1Block is ISemver, IGasToken {
         }
     }
 
+    /// @notice Updates the L1 block values for an Isthmus upgraded chain.
+    /// Params are packed and passed in as raw msg.data instead of ABI to reduce calldata size.
+    /// Params are expected to be in the following order:
+    ///   1. _baseFeeScalar        L1 base fee scalar
+    ///   2. _blobBaseFeeScalar    L1 blob base fee scalar
+    ///   3. _sequenceNumber       Number of L2 blocks since epoch start.
+    ///   4. _timestamp            L1 timestamp.
+    ///   5. _number               L1 blocknumber.
+    ///   6. _basefee              L1 base fee.
+    ///   7. _blobBaseFee          L1 blob base fee.
+    ///   8. _hash                 L1 blockhash.
+    ///   9. _batcherHash          Versioned hash to authenticate batcher by.
+    ///   10. _operatorFeeScalar   Operator fee scalar.
+    ///   11. _operatorFeeConstant Operator fee constant.
+    function setL1BlockValuesIsthmus() public {
+        _setL1BlockValuesIsthmus();
+    }
+
+    /// @notice Updates the L1 block values for an Isthmus upgraded chain.
+    /// Params are packed and passed in as raw msg.data instead of ABI to reduce calldata size.
+    /// Params are expected to be in the following order:
+    ///   1. _baseFeeScalar        L1 base fee scalar
+    ///   2. _blobBaseFeeScalar    L1 blob base fee scalar
+    ///   3. _sequenceNumber       Number of L2 blocks since epoch start.
+    ///   4. _timestamp            L1 timestamp.
+    ///   5. _number               L1 blocknumber.
+    ///   6. _basefee              L1 base fee.
+    ///   7. _blobBaseFee          L1 blob base fee.
+    ///   8. _hash                 L1 blockhash.
+    ///   9. _batcherHash          Versioned hash to authenticate batcher by.
+    ///   10. _operatorFeeScalar   Operator fee scalar.
+    ///   11. _operatorFeeConstant Operator fee constant.
+    function _setL1BlockValuesIsthmus() internal {
+        _setL1BlockValuesEcotone();
+        assembly {
+            // operatorFeeScalar (uint32), operatorFeeConstant (uint64), baseFeeScalar (uint32)
+            sstore(operatorFeeScalar.slot, calldataload(164))
+        }
+    }
+
     /// @notice Sets the gas paying token for the L2 system. Can only be called by the special
     ///         depositor account. This function is not called on every L2 block but instead
     ///         only called by specially crafted L1 deposit transactions.
