@@ -469,6 +469,8 @@ func L1InfoDeposit(rollupCfg *rollup.Config, sysCfg eth.SystemConfig, seqNumber 
 			}
 			data = out
 		} else if isIsthmusButNotFirstBlock(rollupCfg, l2Timestamp) {
+			l1BlockInfo.OperatorFeeScalar = sysCfg.OperatorFeeScalar()
+			l1BlockInfo.OperatorFeeConstant = sysCfg.OperatorFeeConstant()
 			out, err := l1BlockInfo.marshalBinaryIsthmus()
 			if err != nil {
 				return nil, fmt.Errorf("failed to marshal Isthmus l1 block info: %w", err)
