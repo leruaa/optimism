@@ -394,10 +394,6 @@ func (info *L1BlockInfo) unmarshalBinaryIsthmus(data []byte) error {
 	if err := binary.Read(r, binary.BigEndian, &info.OperatorFeeConstant); err != nil {
 		return ErrInvalidIsthmusFormat
 	}
-	var padding uint32
-	if err := binary.Read(r, binary.BigEndian, &padding); err != nil {
-		return ErrInvalidIsthmusFormat
-	}
 	if !solabi.EmptyReader(r) {
 		return errors.New("too many bytes")
 	}
