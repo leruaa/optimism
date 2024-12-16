@@ -499,6 +499,9 @@ func (c *Config) ActivateAtGenesis(hardfork ForkName) {
 	case Interop:
 		c.InteropTime = new(uint64)
 		fallthrough
+	case Isthmus:
+		c.IsthmusTime = new(uint64)
+		fallthrough
 	case Holocene:
 		c.HoloceneTime = new(uint64)
 		fallthrough
@@ -638,6 +641,7 @@ func (c *Config) Description(l2Chains map[string]string) string {
 	banner += fmt.Sprintf("  - Fjord: %s\n", fmtForkTimeOrUnset(c.FjordTime))
 	banner += fmt.Sprintf("  - Granite: %s\n", fmtForkTimeOrUnset(c.GraniteTime))
 	banner += fmt.Sprintf("  - Holocene: %s\n", fmtForkTimeOrUnset(c.HoloceneTime))
+	banner += fmt.Sprintf("  - Isthmus: %s\n", fmtForkTimeOrUnset(c.IsthmusTime))
 	banner += fmt.Sprintf("  - Interop: %s\n", fmtForkTimeOrUnset(c.InteropTime))
 	// Report the protocol version
 	banner += fmt.Sprintf("Node supports up to OP-Stack Protocol Version: %s\n", OPStackSupport)
@@ -674,6 +678,7 @@ func (c *Config) LogDescription(log log.Logger, l2Chains map[string]string) {
 		"fjord_time", fmtForkTimeOrUnset(c.FjordTime),
 		"granite_time", fmtForkTimeOrUnset(c.GraniteTime),
 		"holocene_time", fmtForkTimeOrUnset(c.HoloceneTime),
+		"isthmus_time", fmtForkTimeOrUnset(c.IsthmusTime),
 		"interop_time", fmtForkTimeOrUnset(c.InteropTime),
 		"alt_da", c.AltDAConfig != nil,
 	)
