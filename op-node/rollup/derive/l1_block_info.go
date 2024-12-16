@@ -18,16 +18,16 @@ import (
 )
 
 const (
-	L1InfoFuncBedrockSignature  = "setL1BlockValues(uint64,uint64,uint256,bytes32,uint64,bytes32,uint256,uint256)"
-	L1InfoFuncEcotoneSignature  = "setL1BlockValuesEcotone()"
-	L1InfoFuncIsthmusSignature  = "setL1BlockValuesIsthmus()"
-	L1InfoFuncInteropSignature  = "setL1BlockValuesInterop()"
-	DepositsCompleteSignature   = "depositsComplete()"
-	L1InfoArguments             = 8
-	L1InfoBedrockLen            = 4 + 32*L1InfoArguments
-	L1InfoEcotoneLen            = 4 + 32*5         // after Ecotone upgrade, args are packed into 5 32-byte slots
-	L1InfoIsthmusLen            = 4 + 32*5 + 4 + 8 // after Isthmus upgrade, additionally pack in operator fee scalar and constant
-	DepositsCompleteLen         = 4                // only the selector
+	L1InfoFuncBedrockSignature = "setL1BlockValues(uint64,uint64,uint256,bytes32,uint64,bytes32,uint256,uint256)"
+	L1InfoFuncEcotoneSignature = "setL1BlockValuesEcotone()"
+	L1InfoFuncIsthmusSignature = "setL1BlockValuesIsthmus()"
+	L1InfoFuncInteropSignature = "setL1BlockValuesInterop()"
+	DepositsCompleteSignature  = "depositsComplete()"
+	L1InfoArguments            = 8
+	L1InfoBedrockLen           = 4 + 32*L1InfoArguments
+	L1InfoEcotoneLen           = 4 + 32*5         // after Ecotone upgrade, args are packed into 5 32-byte slots
+	L1InfoIsthmusLen           = 4 + 32*5 + 4 + 8 // after Isthmus upgrade, additionally pack in operator fee scalar and constant
+	DepositsCompleteLen        = 4                // only the selector
 	// DepositsCompleteGas allocates 21k gas for intrinsic tx costs, and
 	// an additional 15k to ensure that the DepositsComplete call does not run out of gas.
 	// GasBenchMark_L1BlockInterop_DepositsComplete:test_depositsComplete_benchmark() (gas: 7768)
@@ -37,14 +37,15 @@ const (
 )
 
 var (
-	L1InfoFuncBedrockBytes4  = crypto.Keccak256([]byte(L1InfoFuncBedrockSignature))[:4]
-	L1InfoFuncEcotoneBytes4  = crypto.Keccak256([]byte(L1InfoFuncEcotoneSignature))[:4]
-	L1InfoFuncIsthmusBytes4  = crypto.Keccak256([]byte(L1InfoFuncIsthmusSignature))[:4]
-	L1InfoFuncInteropBytes4  = crypto.Keccak256([]byte(L1InfoFuncInteropSignature))[:4]
-	DepositsCompleteBytes4   = crypto.Keccak256([]byte(DepositsCompleteSignature))[:4]
-	L1InfoDepositerAddress   = common.HexToAddress("0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001")
-	L1BlockAddress           = predeploys.L1BlockAddr
-	ErrInvalidFormat         = errors.New("invalid ecotone l1 block info format")
+	L1InfoFuncBedrockBytes4 = crypto.Keccak256([]byte(L1InfoFuncBedrockSignature))[:4]
+	L1InfoFuncEcotoneBytes4 = crypto.Keccak256([]byte(L1InfoFuncEcotoneSignature))[:4]
+	L1InfoFuncIsthmusBytes4 = crypto.Keccak256([]byte(L1InfoFuncIsthmusSignature))[:4]
+	L1InfoFuncInteropBytes4 = crypto.Keccak256([]byte(L1InfoFuncInteropSignature))[:4]
+	DepositsCompleteBytes4  = crypto.Keccak256([]byte(DepositsCompleteSignature))[:4]
+	L1InfoDepositerAddress  = common.HexToAddress("0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001")
+	L1BlockAddress          = predeploys.L1BlockAddr
+	ErrInvalidFormat        = errors.New("invalid ecotone l1 block info format")
+	ErrInvalidIsthmusFormat = errors.New("invalid isthmus l1 block info format")
 )
 
 const (
@@ -360,19 +361,19 @@ func (info *L1BlockInfo) unmarshalBinaryIsthmus(data []byte) error {
 		return err
 	}
 	if err := binary.Read(r, binary.BigEndian, &info.BaseFeeScalar); err != nil {
-		return ErrInvalidFormat
+		return ErrInvalidIsthmusFormat
 	}
 	if err := binary.Read(r, binary.BigEndian, &info.BlobBaseFeeScalar); err != nil {
-		return ErrInvalidFormat
+		return ErrInvalidIsthmusFormat
 	}
 	if err := binary.Read(r, binary.BigEndian, &info.SequenceNumber); err != nil {
-		return ErrInvalidFormat
+		return ErrInvalidIsthmusFormat
 	}
 	if err := binary.Read(r, binary.BigEndian, &info.Time); err != nil {
-		return ErrInvalidFormat
+		return ErrInvalidIsthmusFormat
 	}
 	if err := binary.Read(r, binary.BigEndian, &info.Number); err != nil {
-		return ErrInvalidFormat
+		return ErrInvalidIsthmusFormat
 	}
 	if info.BaseFee, err = solabi.ReadUint256(r); err != nil {
 		return err
@@ -388,14 +389,14 @@ func (info *L1BlockInfo) unmarshalBinaryIsthmus(data []byte) error {
 		return err
 	}
 	if err := binary.Read(r, binary.BigEndian, &info.OperatorFeeScalar); err != nil {
-		return ErrInvalidFormat
+		return ErrInvalidIsthmusFormat
 	}
 	if err := binary.Read(r, binary.BigEndian, &info.OperatorFeeConstant); err != nil {
-		return ErrInvalidFormat
+		return ErrInvalidIsthmusFormat
 	}
 	var padding uint32
 	if err := binary.Read(r, binary.BigEndian, &padding); err != nil {
-		return ErrInvalidFormat
+		return ErrInvalidIsthmusFormat
 	}
 	if !solabi.EmptyReader(r) {
 		return errors.New("too many bytes")
