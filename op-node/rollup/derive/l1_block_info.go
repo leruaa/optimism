@@ -249,10 +249,10 @@ func (info *L1BlockInfo) marshalBinaryIsthmus() ([]byte, error) {
 	if err := solabi.WriteAddress(w, info.BatcherAddr); err != nil {
 		return nil, err
 	}
-	if err := binary.Write(w, binary.BigEndian, info.OperatorFeeScalar); err != nil {
+	if err := binary.Write(w, binary.BigEndian, info.OperatorFeeConstant); err != nil {
 		return nil, err
 	}
-	if err := binary.Write(w, binary.BigEndian, info.OperatorFeeConstant); err != nil {
+	if err := binary.Write(w, binary.BigEndian, info.OperatorFeeScalar); err != nil {
 		return nil, err
 	}
 	return w.Bytes(), nil
