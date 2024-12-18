@@ -184,6 +184,8 @@ contract L2Genesis is Deployer {
             return;
         }
 
+        activateIsthmus();
+
         if (writeForkGenesisAllocs(_fork, Fork.ISTHMUS, _mode)) {
             return;
         }
@@ -646,6 +648,12 @@ contract L2Genesis is Deployer {
         console.log("Activating fjord in GasPriceOracle contract");
         vm.prank(IL1Block(Predeploys.L1_BLOCK_ATTRIBUTES).DEPOSITOR_ACCOUNT());
         IGasPriceOracle(Predeploys.GAS_PRICE_ORACLE).setFjord();
+    }
+
+    function activateIsthmus() public {
+        console.log("Activating isthmus in GasPriceOracle contract");
+        vm.prank(IL1Block(Predeploys.L1_BLOCK_ATTRIBUTES).DEPOSITOR_ACCOUNT());
+        IGasPriceOracle(Predeploys.GAS_PRICE_ORACLE).setIsthmus();
     }
 
     /// @notice Sets the bytecode in state
