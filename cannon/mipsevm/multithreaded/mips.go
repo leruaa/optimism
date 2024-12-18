@@ -12,6 +12,7 @@ import (
 	"github.com/ethereum-optimism/optimism/cannon/mipsevm/arch"
 	"github.com/ethereum-optimism/optimism/cannon/mipsevm/exec"
 	"github.com/ethereum-optimism/optimism/cannon/mipsevm/program"
+	"github.com/ethereum-optimism/optimism/cannon/mipsevm/register"
 )
 
 type Word = arch.Word
@@ -57,10 +58,10 @@ func (m *InstrumentedState) handleSyscall() error {
 			Registers: thread.Registers,
 		}
 
-		newThread.Registers[29] = a1
+		newThread.Registers[register.RegSP] = a1
 		// the child will perceive a 0 value as returned value instead, and no error
-		newThread.Registers[exec.RegSyscallRet1] = 0
-		newThread.Registers[exec.RegSyscallErrno] = 0
+		newThread.Registers[register.RegSyscallRet1] = 0
+		newThread.Registers[register.RegSyscallErrno] = 0
 		m.state.NextThreadId++
 
 		// Preempt this thread for the new one. But not before updating PCs
@@ -128,8 +129,7 @@ func (m *InstrumentedState) handleSyscall() error {
 				return nil
 			}
 		case exec.FutexWakePrivate:
-			// Trigger thread traversal starting from the left stack until we find one waiting on the wakeup
-			// address
+			// Trigger a wakeup traversal
 			m.state.Wakeup = effAddr
 			// Don't indicate to the program that we've woken up a waiting thread, as there are no guarantees.
 			// The woken up thread should indicate this in userspace.
@@ -138,6 +138,7 @@ func (m *InstrumentedState) handleSyscall() error {
 			exec.HandleSyscallUpdates(&thread.Cpu, &thread.Registers, v0, v1)
 			m.preemptThread(thread)
 			m.state.TraverseRight = len(m.state.LeftThreadStack) == 0
+			m.statsTracker.trackWakeupTraversalStart()
 			return nil
 		default:
 			v0 = exec.SysErrorSignal
@@ -288,6 +289,7 @@ func (m *InstrumentedState) doMipsStep() error {
 			if thread.FutexVal == mem {
 				// still got expected value, continue sleeping, try next thread.
 				m.preemptThread(thread)
+				m.statsTracker.trackWakeupFail()
 				return nil
 			} else {
 				// wake thread up, the value at its address changed!
@@ -308,6 +310,7 @@ func (m *InstrumentedState) doMipsStep() error {
 			}
 		}
 		m.preemptThread(thread)
+		m.statsTracker.trackForcedPreemption()
 		return nil
 	}
 	m.state.StepsSinceLastContextSwitch += 1
@@ -348,6 +351,7 @@ func (m *InstrumentedState) handleMemoryUpdate(effMemAddr Word) {
 	if effMemAddr == (arch.AddressMask & m.state.LLAddress) {
 		// Reserved address was modified, clear the reservation
 		m.clearLLMemoryReservation()
+		m.statsTracker.trackReservationInvalidation()
 	}
 }
 
@@ -383,6 +387,8 @@ func (m *InstrumentedState) handleRMWOps(insn, opcode uint32) error {
 		m.state.LLReservationStatus = targetStatus
 		m.state.LLAddress = addr
 		m.state.LLOwnerThread = threadId
+
+		m.statsTracker.trackLL(threadId, m.GetState().GetStep())
 	case exec.OpStoreConditional, exec.OpStoreConditional64:
 		if m.state.LLReservationStatus == targetStatus && m.state.LLOwnerThread == threadId && m.state.LLAddress == addr {
 			// Complete atomic update: set memory and return 1 for success
@@ -392,9 +398,13 @@ func (m *InstrumentedState) handleRMWOps(insn, opcode uint32) error {
 			exec.StoreSubWord(m.state.GetMemory(), addr, byteLength, val, m.memoryTracker)
 
 			retVal = 1
+
+			m.statsTracker.trackSCSuccess(threadId, m.GetState().GetStep())
 		} else {
 			// Atomic update failed, return 0 for failure
 			retVal = 0
+
+			m.statsTracker.trackSCFailure(threadId, m.GetState().GetStep())
 		}
 	default:
 		panic(fmt.Sprintf("Invalid instruction passed to handleRMWOps (opcode %08x)", opcode))
@@ -418,6 +428,7 @@ func (m *InstrumentedState) onWaitComplete(thread *ThreadState, isTimedOut bool)
 		v1 = exec.MipsETIMEDOUT
 	}
 	exec.HandleSyscallUpdates(&thread.Cpu, &thread.Registers, v0, v1)
+	m.statsTracker.trackWakeup()
 }
 
 func (m *InstrumentedState) preemptThread(thread *ThreadState) bool {
@@ -446,6 +457,8 @@ func (m *InstrumentedState) preemptThread(thread *ThreadState) bool {
 	}
 
 	m.state.StepsSinceLastContextSwitch = 0
+
+	m.statsTracker.trackThreadActivated(m.state.GetCurrentThread().ThreadId, m.state.GetStep())
 	return changeDirections
 }
 

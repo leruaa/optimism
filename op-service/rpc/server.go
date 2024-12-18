@@ -29,6 +29,7 @@ type Server struct {
 	corsHosts      []string
 	vHosts         []string
 	jwtSecret      []byte
+	wsEnabled      bool
 	rpcPath        string
 	healthzPath    string
 	httpRecorder   opmetrics.HTTPRecorder
@@ -69,6 +70,12 @@ func WithCORSHosts(hosts []string) ServerOption {
 func WithVHosts(hosts []string) ServerOption {
 	return func(b *Server) {
 		b.vHosts = hosts
+	}
+}
+
+func WithWebsocketEnabled() ServerOption {
+	return func(b *Server) {
+		b.wsEnabled = true
 	}
 }
 
@@ -159,8 +166,12 @@ func (b *Server) AddAPI(api rpc.API) {
 
 func (b *Server) Start() error {
 	srv := rpc.NewServer()
-	if err := node.RegisterApis(b.apis, nil, srv); err != nil {
-		return fmt.Errorf("error registering APIs: %w", err)
+
+	for _, api := range b.apis {
+		if err := srv.RegisterName(api.Namespace, api.Service); err != nil {
+			return fmt.Errorf("failed to register API %s: %w", api.Namespace, err)
+		}
+		b.log.Info("registered API", "namespace", api.Namespace)
 	}
 
 	// rpc middleware
@@ -173,6 +184,11 @@ func (b *Server) Start() error {
 	mux := http.NewServeMux()
 	mux.Handle(b.rpcPath, nodeHdlr)
 	mux.Handle(b.healthzPath, b.healthzHandler)
+
+	if b.wsEnabled {
+		wsHandler := node.NewWSHandlerStack(srv.WebsocketHandler(b.corsHosts), b.jwtSecret)
+		mux.Handle("/ws", wsHandler)
+	}
 
 	// http middleware
 	var handler http.Handler = mux
