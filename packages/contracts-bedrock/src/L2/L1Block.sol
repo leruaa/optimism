@@ -212,8 +212,8 @@ contract L1Block is ISemver, IGasToken {
     function _setL1BlockValuesIsthmus() internal {
         _setL1BlockValuesEcotone();
         assembly {
-            // operatorFeeScalar (uint32), operatorFeeConstant (uint64), baseFeeScalar (uint32)
-            sstore(operatorFeeScalar.slot, calldataload(164))
+            // operatorFeeScalar (uint32), operatorFeeConstant (uint64)
+            sstore(operatorFeeConstant.slot, shr(160, calldataload(164)))
         }
     }
 
