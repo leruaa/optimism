@@ -75,6 +75,15 @@ func FuzzEncodeScalar(f *testing.F) {
 	})
 }
 
+func FuzzEncodeOperatorFeeParams(f *testing.F) {
+	f.Fuzz(func(t *testing.T, scalar uint32, constant uint64) {
+		encoded := EncodeOperatorFeeParams(OperatorFeeParams{Scalar: scalar, Constant: constant})
+		scalars := DecodeOperatorFeeParams(encoded)
+		require.Equal(t, scalar, scalars.Scalar)
+		require.Equal(t, constant, scalars.Constant)
+	})
+}
+
 func TestSystemConfigMarshaling(t *testing.T) {
 	sysConfig := SystemConfig{
 		BatcherAddr: common.Address{'A'},

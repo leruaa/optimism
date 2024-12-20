@@ -223,7 +223,6 @@ library Encoding {
         );
     }
 
-
     /// @notice Returns an appropriately encoded call to L1Block.setL1BlockValuesInterop
     /// @param _baseFeeScalar       L1 base fee Scalar
     /// @param _blobBaseFeeScalar   L1 blob base fee Scalar

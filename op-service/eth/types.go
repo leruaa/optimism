@@ -572,19 +572,24 @@ type OperatorFeeParams struct {
 	Constant uint64
 }
 
-func (sysCfg *SystemConfig) OperatorFeeScalar() uint32 {
-	return binary.BigEndian.Uint32(sysCfg.OperatorFeeParams[0:4])
+func (sysCfg *SystemConfig) OperatorFee() OperatorFeeParams {
+	return DecodeOperatorFeeParams(sysCfg.OperatorFeeParams)
 }
 
-func (sysCfg *SystemConfig) OperatorFeeConstant() uint64 {
-	return binary.BigEndian.Uint64(sysCfg.OperatorFeeParams[4:12])
+// DecodeScalar decodes the operatorFeeScalar and operatorFeeConstant from a 32-byte scalar value.
+// It uses the first byte to determine the scalar format.
+func DecodeOperatorFeeParams(scalar [32]byte) OperatorFeeParams {
+	return OperatorFeeParams{
+		Scalar:   binary.BigEndian.Uint32(scalar[28:32]),
+		Constant: binary.BigEndian.Uint64(scalar[20:28]),
+	}
 }
 
 // EncodeOperatorFeeParams encodes the OperatorFeeParams into a 32-byte value
 func EncodeOperatorFeeParams(params OperatorFeeParams) (scalar [32]byte) {
 
-	binary.BigEndian.PutUint32(scalar[0:4], params.Scalar)
-	binary.BigEndian.PutUint64(scalar[4:12], params.Constant)
+	binary.BigEndian.PutUint32(scalar[28:32], params.Scalar)
+	binary.BigEndian.PutUint64(scalar[20:28], params.Constant)
 	return
 }
 

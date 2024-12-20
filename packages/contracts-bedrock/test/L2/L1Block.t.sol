@@ -183,7 +183,17 @@ contract L1BlockIsthmus_Test is L1BlockTest {
         external
     {
         bytes memory functionCallDataPacked = Encoding.encodeSetL1BlockValuesIsthmus(
-            baseFeeScalar, blobBaseFeeScalar, sequenceNumber, timestamp, number, baseFee, blobBaseFee, hash, batcherHash, operatorFeeScalar, operatorFeeConstant
+            baseFeeScalar,
+            blobBaseFeeScalar,
+            sequenceNumber,
+            timestamp,
+            number,
+            baseFee,
+            blobBaseFee,
+            hash,
+            batcherHash,
+            operatorFeeScalar,
+            operatorFeeConstant
         );
 
         vm.prank(depositor);
