@@ -580,16 +580,16 @@ func (sysCfg *SystemConfig) OperatorFee() OperatorFeeParams {
 // It uses the first byte to determine the scalar format.
 func DecodeOperatorFeeParams(scalar [32]byte) OperatorFeeParams {
 	return OperatorFeeParams{
-		Scalar:   binary.BigEndian.Uint32(scalar[28:32]),
-		Constant: binary.BigEndian.Uint64(scalar[20:28]),
+		Scalar:   binary.BigEndian.Uint32(scalar[20:24]),
+		Constant: binary.BigEndian.Uint64(scalar[24:32]),
 	}
 }
 
 // EncodeOperatorFeeParams encodes the OperatorFeeParams into a 32-byte value
 func EncodeOperatorFeeParams(params OperatorFeeParams) (scalar [32]byte) {
 
-	binary.BigEndian.PutUint32(scalar[28:32], params.Scalar)
-	binary.BigEndian.PutUint64(scalar[20:28], params.Constant)
+	binary.BigEndian.PutUint32(scalar[20:24], params.Scalar)
+	binary.BigEndian.PutUint64(scalar[24:32], params.Constant)
 	return
 }
 

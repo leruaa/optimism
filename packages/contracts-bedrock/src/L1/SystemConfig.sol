@@ -463,7 +463,7 @@ contract SystemConfig is OwnableUpgradeable, ISemver, IGasToken {
         operatorFeeScalar = _operatorFeeScalar;
         operatorFeeConstant = _operatorFeeConstant;
 
-        bytes memory data = abi.encode(uint256(_operatorFeeScalar) << 32 | _operatorFeeConstant);
+        bytes memory data = abi.encode(uint256(_operatorFeeScalar) << 64 | _operatorFeeConstant);
         emit ConfigUpdate(VERSION, UpdateType.OPERATOR_FEE_PARAMS, data);
     }
 
