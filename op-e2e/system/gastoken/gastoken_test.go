@@ -161,9 +161,14 @@ func setCustomGasToken(t *testing.T, cfg e2esys.SystemConfig, sys *e2esys.System
 	// Get existing parameters from SystemConfigProxy contract
 	owner, err := systemConfig.Owner(&bind.CallOpts{})
 	require.NoError(t, err)
-	basefeeScalar, err := systemConfig.BasefeeScalar(&bind.CallOpts{})
+	feeScalars := bindings.SystemConfigFeeScalars{}
+	feeScalars.BaseFeeScalar, err = systemConfig.BasefeeScalar(&bind.CallOpts{})
 	require.NoError(t, err)
-	blobbasefeeScalar, err := systemConfig.BlobbasefeeScalar(&bind.CallOpts{})
+	feeScalars.BlobBaseFeeScalar, err = systemConfig.BlobbasefeeScalar(&bind.CallOpts{})
+	require.NoError(t, err)
+	feeScalars.OperatorFeeScalar, err = systemConfig.OperatorFeeScalar(&bind.CallOpts{})
+	require.NoError(t, err)
+	feeScalars.OperatorFeeConstant, err = systemConfig.OperatorFeeConstant(&bind.CallOpts{})
 	require.NoError(t, err)
 	batcherHash, err := systemConfig.BatcherHash(&bind.CallOpts{})
 	require.NoError(t, err)
@@ -233,8 +238,7 @@ func setCustomGasToken(t *testing.T, cfg e2esys.SystemConfig, sys *e2esys.System
 
 	// Reinitialise with existing initializer values but with custom gas token set
 	tx, err = systemConfig.Initialize(deployerOpts, owner,
-		basefeeScalar,
-		blobbasefeeScalar,
+		feeScalars,
 		batcherHash,
 		gasLimit,
 		unsafeBlockSigner,

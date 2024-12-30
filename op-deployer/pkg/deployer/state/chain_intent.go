@@ -49,6 +49,8 @@ type ChainIntent struct {
 	DeployOverrides            map[string]any            `json:"deployOverrides" toml:"deployOverrides"`
 	DangerousAltDAConfig       genesis.AltDADeployConfig `json:"dangerousAltDAConfig,omitempty" toml:"dangerousAltDAConfig,omitempty"`
 	AdditionalDisputeGames     []AdditionalDisputeGame   `json:"dangerousAdditionalDisputeGames" toml:"dangerousAdditionalDisputeGames,omitempty"`
+	OperatorFeeScalar          uint32                    `json:"operatorFeeScalar" toml:"operatorFeeScalar"`
+	OperatorFeeConstant        uint64                    `json:"operatorFeeConstant" toml:"operatorFeeConstant"`
 }
 
 type ChainRoles struct {

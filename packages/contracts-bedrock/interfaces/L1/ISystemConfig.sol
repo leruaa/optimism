@@ -24,6 +24,13 @@ interface ISystemConfig {
         address gasPayingToken;
     }
 
+    struct FeeScalars {
+        uint32 baseFeeScalar;
+        uint32 blobBaseFeeScalar;
+        uint32 operatorFeeScalar;
+        uint64 operatorFeeConstant;
+    }
+
     event ConfigUpdate(uint256 indexed version, UpdateType indexed updateType, bytes data);
     event Initialized(uint8 version);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -51,8 +58,7 @@ interface ISystemConfig {
     function gasPayingTokenSymbol() external view returns (string memory symbol_);
     function initialize(
         address _owner,
-        uint32 _basefeeScalar,
-        uint32 _blobbasefeeScalar,
+        FeeScalars memory _feeScalars,
         bytes32 _batcherHash,
         uint64 _gasLimit,
         address _unsafeBlockSigner,

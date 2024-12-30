@@ -512,8 +512,12 @@ contract Deploy is Deployer {
                 ISystemConfig.initialize,
                 (
                     cfg.finalSystemOwner(),
-                    cfg.basefeeScalar(),
-                    cfg.blobbasefeeScalar(),
+                    ISystemConfig.FeeScalars({
+                        baseFeeScalar: cfg.basefeeScalar(),
+                        blobBaseFeeScalar: cfg.blobbasefeeScalar(),
+                        operatorFeeScalar: cfg.operatorFeeScalar(),
+                        operatorFeeConstant: cfg.operatorFeeConstant()
+                    }),
                     batcherHash,
                     uint64(cfg.l2GenesisBlockGasLimit()),
                     cfg.p2pSequencerAddress(),
@@ -881,7 +885,9 @@ contract Deploy is Deployer {
             disputeMaxGameDepth: cfg.faultGameMaxDepth(),
             disputeSplitDepth: cfg.faultGameSplitDepth(),
             disputeClockExtension: Duration.wrap(uint64(cfg.faultGameClockExtension())),
-            disputeMaxClockDuration: Duration.wrap(uint64(cfg.faultGameMaxClockDuration()))
+            disputeMaxClockDuration: Duration.wrap(uint64(cfg.faultGameMaxClockDuration())),
+            operatorFeeScalar: cfg.operatorFeeScalar(),
+            operatorFeeConstant: cfg.operatorFeeConstant()
         });
     }
 

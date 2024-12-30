@@ -290,14 +290,31 @@
         "type": "address"
       },
       {
-        "internalType": "uint32",
-        "name": "_basefeeScalar",
-        "type": "uint32"
-      },
-      {
-        "internalType": "uint32",
-        "name": "_blobbasefeeScalar",
-        "type": "uint32"
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "_baseFeeScalar",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "_blobBaseFeeScalar",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "_operatorFeeScalar",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint64",
+            "name": "_operatorFeeConstant",
+            "type": "uint64"
+          }
+        ],
+        "internalType": "struct SystemConfig.FeeScalars",
+        "name": "_feeScalars",
+        "type": "tuple"
       },
       {
         "internalType": "bytes32",
@@ -477,6 +494,32 @@
         "internalType": "uint64",
         "name": "",
         "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "operatorFeeConstant",
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "operatorFeeScalar",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
       }
     ],
     "stateMutability": "view",

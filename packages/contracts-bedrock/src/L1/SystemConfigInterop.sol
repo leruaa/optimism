@@ -29,8 +29,7 @@ contract SystemConfigInterop is SystemConfig {
 
     /// @notice Initializer.
     /// @param _owner             Initial owner of the contract.
-    /// @param _basefeeScalar     Initial basefee scalar value.
-    /// @param _blobbasefeeScalar Initial blobbasefee scalar value.
+    /// @param _feeScalars        Initial fee scalars.
     /// @param _batcherHash       Initial batcher hash.
     /// @param _gasLimit          Initial gas limit.
     /// @param _unsafeBlockSigner Initial unsafe block signer address.
@@ -41,8 +40,7 @@ contract SystemConfigInterop is SystemConfig {
     /// @param _dependencyManager The addressed allowed to add/remove from the dependency set
     function initialize(
         address _owner,
-        uint32 _basefeeScalar,
-        uint32 _blobbasefeeScalar,
+        SystemConfig.FeeScalars memory _feeScalars,
         bytes32 _batcherHash,
         uint64 _gasLimit,
         address _unsafeBlockSigner,
@@ -56,8 +54,7 @@ contract SystemConfigInterop is SystemConfig {
         // This method has an initializer modifier, and will revert if already initialized.
         initialize({
             _owner: _owner,
-            _basefeeScalar: _basefeeScalar,
-            _blobbasefeeScalar: _blobbasefeeScalar,
+            _feeScalars: _feeScalars,
             _batcherHash: _batcherHash,
             _gasLimit: _gasLimit,
             _unsafeBlockSigner: _unsafeBlockSigner,

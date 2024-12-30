@@ -98,7 +98,7 @@ func PayloadToSystemConfig(rollupCfg *rollup.Config, payload *eth.ExecutionPaylo
 		copy(r.EIP1559Params[:], eip1559.EncodeHolocene1559Params(d, e))
 	}
 
-	if rollupCfg.IsHolocene(uint64(payload.Timestamp)) {
+	if rollupCfg.IsIsthmus(uint64(payload.Timestamp)) {
 		r.OperatorFeeParams = eth.EncodeOperatorFeeParams(eth.OperatorFeeParams{
 			Scalar:   info.OperatorFeeScalar,
 			Constant: info.OperatorFeeConstant,

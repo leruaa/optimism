@@ -61,6 +61,9 @@ contract OPContractsManager is ISemver {
         uint256 disputeSplitDepth;
         Duration disputeClockExtension;
         Duration disputeMaxClockDuration;
+        // Operator fee scalars.
+        uint32 operatorFeeScalar;
+        uint64 operatorFeeConstant;
     }
 
     /// @notice The full set of outputs from deploying a new OP Stack chain.
@@ -474,8 +477,12 @@ contract OPContractsManager is ISemver {
         return abi.encodeWithSelector(
             selector,
             _input.roles.systemConfigOwner,
-            _input.basefeeScalar,
-            _input.blobBasefeeScalar,
+            ISystemConfig.FeeScalars({
+                baseFeeScalar: _input.basefeeScalar,
+                blobBaseFeeScalar: _input.blobBasefeeScalar,
+                operatorFeeScalar: _input.operatorFeeScalar,
+                operatorFeeConstant: _input.operatorFeeConstant
+            }),
             bytes32(uint256(uint160(_input.roles.batcher))), // batcherHash
             _input.gasLimit,
             _input.roles.unsafeBlockSigner,

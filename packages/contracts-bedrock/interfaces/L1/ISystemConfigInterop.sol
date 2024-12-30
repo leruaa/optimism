@@ -61,8 +61,7 @@ interface ISystemConfigInterop {
     function dependencyManager() external view returns (address);
     function initialize(
         address _owner,
-        uint32 _basefeeScalar,
-        uint32 _blobbasefeeScalar,
+        ISystemConfig.FeeScalars memory _feeScalars,
         bytes32 _batcherHash,
         uint64 _gasLimit,
         address _unsafeBlockSigner,

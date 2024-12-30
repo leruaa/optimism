@@ -140,8 +140,12 @@ contract SystemConfigInterop_Test is CommonTest {
 
         systemConfig.initialize({
             _owner: alice,
-            _basefeeScalar: 2100,
-            _blobbasefeeScalar: 1000000,
+            _feeScalars: ISystemConfig.FeeScalars({
+                baseFeeScalar: 2100,
+                blobBaseFeeScalar: 1000000,
+                operatorFeeScalar: 0,
+                operatorFeeConstant: 0
+            }),
             _batcherHash: bytes32(hex"abcd"),
             _gasLimit: 30_000_000,
             _unsafeBlockSigner: address(1),

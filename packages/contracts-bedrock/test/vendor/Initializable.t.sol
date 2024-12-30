@@ -159,8 +159,12 @@ contract Initializer_Test is CommonTest {
                     systemConfig.initialize,
                     (
                         address(0xdead),
-                        0,
-                        0,
+                        ISystemConfig.FeeScalars({
+                            baseFeeScalar: 0,
+                            blobBaseFeeScalar: 0,
+                            operatorFeeScalar: 0,
+                            operatorFeeConstant: 0
+                        }),
                         bytes32(0),
                         1,
                         address(0),
@@ -195,8 +199,12 @@ contract Initializer_Test is CommonTest {
                     systemConfig.initialize,
                     (
                         address(0xdead),
-                        0,
-                        0,
+                        ISystemConfig.FeeScalars({
+                            baseFeeScalar: 0,
+                            blobBaseFeeScalar: 0,
+                            operatorFeeScalar: 0,
+                            operatorFeeConstant: 0
+                        }),
                         bytes32(0),
                         1,
                         address(0),

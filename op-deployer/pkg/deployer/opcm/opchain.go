@@ -47,6 +47,8 @@ func (input *DeployOPChainInputV160) InputSet() bool {
 type DeployOPChainInputIsthmus struct {
 	DeployOPChainInputV160
 	SystemConfigFeeAdmin common.Address
+	OperatorFeeScalar    uint32
+	OperatorFeeConstant  uint64
 }
 
 type DeployOPChainOutput struct {
