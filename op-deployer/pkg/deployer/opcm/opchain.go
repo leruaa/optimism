@@ -38,6 +38,9 @@ type DeployOPChainInputV160 struct {
 	DisputeMaxClockDuration      uint64
 	StartingAnchorRoots          []byte
 	AllowCustomDisputeParameters bool
+
+	OperatorFeeScalar   uint32
+	OperatorFeeConstant uint64
 }
 
 func (input *DeployOPChainInputV160) InputSet() bool {
@@ -47,8 +50,6 @@ func (input *DeployOPChainInputV160) InputSet() bool {
 type DeployOPChainInputIsthmus struct {
 	DeployOPChainInputV160
 	SystemConfigFeeAdmin common.Address
-	OperatorFeeScalar    uint32
-	OperatorFeeConstant  uint64
 }
 
 type DeployOPChainOutput struct {

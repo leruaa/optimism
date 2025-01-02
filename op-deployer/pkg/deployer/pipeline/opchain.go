@@ -148,6 +148,8 @@ func makeDCIV160(intent *state.Intent, thisIntent *state.ChainIntent, chainID co
 		DisputeMaxClockDuration:      proofParams.DisputeMaxClockDuration, // 3.5 days (input in seconds)
 		AllowCustomDisputeParameters: proofParams.DangerouslyAllowCustomDisputeParameters,
 		StartingAnchorRoots:          startingAnchorRoots,
+		OperatorFeeScalar:            thisIntent.OperatorFeeScalar,
+		OperatorFeeConstant:          thisIntent.OperatorFeeConstant,
 	}, nil
 }
 
@@ -160,8 +162,6 @@ func makeDCIIsthmus(intent *state.Intent, thisIntent *state.ChainIntent, chainID
 	return opcm.DeployOPChainInputIsthmus{
 		DeployOPChainInputV160: dci,
 		SystemConfigFeeAdmin:   common.Address{'D', 'E', 'A', 'D'},
-		OperatorFeeScalar:      thisIntent.OperatorFeeScalar,
-		OperatorFeeConstant:    thisIntent.OperatorFeeConstant,
 	}, nil
 }
 

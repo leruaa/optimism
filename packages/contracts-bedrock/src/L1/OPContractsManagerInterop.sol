@@ -48,8 +48,12 @@ contract OPContractsManagerInterop is OPContractsManager {
         return abi.encodeWithSelector(
             selector,
             _input.roles.systemConfigOwner,
-            _input.basefeeScalar,
-            _input.blobBasefeeScalar,
+            ISystemConfig.FeeScalars({
+                baseFeeScalar: _input.basefeeScalar,
+                blobBaseFeeScalar: _input.blobBasefeeScalar,
+                operatorFeeScalar: _input.operatorFeeScalar,
+                operatorFeeConstant: _input.operatorFeeConstant
+            }),
             bytes32(uint256(uint160(_input.roles.batcher))), // batcherHash
             _input.gasLimit,
             _input.roles.unsafeBlockSigner,

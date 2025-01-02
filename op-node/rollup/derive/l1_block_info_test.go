@@ -211,7 +211,7 @@ func TestParseL1InfoDepositTxData(t *testing.T) {
 		rng := rand.New(rand.NewSource(1234))
 		info := testutils.MakeBlockInfo(nil)(rng)
 		rollupCfg := rollup.Config{BlockTime: 2, Genesis: rollup.Genesis{L2Time: 1000}}
-		rollupCfg.ActivateAtGenesis(rollup.Holocene)
+		rollupCfg.ActivateAtGenesis(rollup.Isthmus)
 		interopTime := rollupCfg.Genesis.L2Time + rollupCfg.BlockTime // activate interop just after genesis
 		rollupCfg.InteropTime = &interopTime
 		depTx, err := L1InfoDeposit(&rollupCfg, randomL1Cfg(rng, info), randomSeqNr(rng), info, interopTime)
