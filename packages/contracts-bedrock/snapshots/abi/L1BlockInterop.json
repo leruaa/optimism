@@ -380,14 +380,14 @@
   },
   {
     "inputs": [],
-    "name": "setL1BlockValuesIsthmus",
+    "name": "setL1BlockValuesInterop",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "setL1BlockValuesInterop",
+    "name": "setL1BlockValuesIsthmus",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

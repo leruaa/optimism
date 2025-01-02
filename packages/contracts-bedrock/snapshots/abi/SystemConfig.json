@@ -293,22 +293,22 @@
         "components": [
           {
             "internalType": "uint32",
-            "name": "_baseFeeScalar",
+            "name": "baseFeeScalar",
             "type": "uint32"
           },
           {
             "internalType": "uint32",
-            "name": "_blobBaseFeeScalar",
+            "name": "blobBaseFeeScalar",
             "type": "uint32"
           },
           {
             "internalType": "uint32",
-            "name": "_operatorFeeScalar",
+            "name": "operatorFeeScalar",
             "type": "uint32"
           },
           {
             "internalType": "uint64",
-            "name": "_operatorFeeConstant",
+            "name": "operatorFeeConstant",
             "type": "uint64"
           }
         ],
@@ -718,6 +718,24 @@
       }
     ],
     "name": "setGasLimit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_operatorFeeScalar",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint64",
+        "name": "_operatorFeeConstant",
+        "type": "uint64"
+      }
+    ],
+    "name": "setOperatorFeeScalars",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
