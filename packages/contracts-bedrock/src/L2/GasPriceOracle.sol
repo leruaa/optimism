@@ -193,12 +193,12 @@ contract GasPriceOracle is ISemver {
         return l1GasUsed + IL1Block(Predeploys.L1_BLOCK_ATTRIBUTES).l1FeeOverhead();
     }
 
-    function getOperatorFee(uint256 gasUsed) public view returns (uint256) {
+    function getOperatorFee(uint256 _gasUsed) public view returns (uint256) {
         if (!isIsthmus) {
             return 0;
         }
 
-        return (gasUsed * IL1Block(Predeploys.L1_BLOCK_ATTRIBUTES).operatorFeeScalar() / 1e6)
+        return (_gasUsed * IL1Block(Predeploys.L1_BLOCK_ATTRIBUTES).operatorFeeScalar() / 1e6)
             + IL1Block(Predeploys.L1_BLOCK_ATTRIBUTES).operatorFeeConstant();
     }
 
