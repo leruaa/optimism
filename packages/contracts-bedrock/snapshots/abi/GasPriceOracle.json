@@ -151,7 +151,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "gasUsed",
+        "name": "_gasUsed",
         "type": "uint256"
       }
     ],
