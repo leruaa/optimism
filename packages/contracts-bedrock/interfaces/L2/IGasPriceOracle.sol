@@ -12,7 +12,7 @@ interface IGasPriceOracle {
     function getL1Fee(bytes memory _data) external view returns (uint256);
     function getL1FeeUpperBound(uint256 _unsignedTxSize) external view returns (uint256);
     function getL1GasUsed(bytes memory _data) external view returns (uint256);
-    function getOperatorFee(uint256 gasUsed) external view returns (uint256);
+    function getOperatorFee(uint256 _gasUsed) external view returns (uint256);
     function isEcotone() external view returns (bool);
     function isFjord() external view returns (bool);
     function isIsthmus() external view returns (bool);

@@ -16,8 +16,8 @@
     "sourceCodeHash": "0xa91b445bdc666a02ba18e3b91ba94b6d54bbe65da714002fc734814201319d57"
   },
   "src/L1/OPContractsManager.sol": {
-    "initCodeHash": "0x4b413cbe79bd10d41d8f3e9f0408e773dd49ced823d457b9f9aa92f446828105",
-    "sourceCodeHash": "0xe5179a20ae40d4e4773c52df98bac67e73e04044bec9e8750073b4e2f14fe81b"
+    "initCodeHash": "0x3a9edbc565289764010f8ff25e9ebb624b3aac4744e16e9e2221e0ed86b658a0",
+    "sourceCodeHash": "0x3afef3d5b589d295798fd53e7ca050e09c25ca54bec1c3688eb25c8cc6622a63"
   },
   "src/L1/OptimismPortal2.sol": {
     "initCodeHash": "0xfd14fd690752519064d6de6c3e15d69ec9146bc8714e56ac286305773dbb1533",
@@ -57,7 +57,7 @@
   },
   "src/L2/GasPriceOracle.sol": {
     "initCodeHash": "0x5ee3dcf80afc184a79b6a756722bbef8eff4ca9fbf797de4506af966d447a1e9",
-    "sourceCodeHash": "0xcfba107f2980757995055a87fa455b79c152c246d850c37039216bc233b25c16"
+    "sourceCodeHash": "0x1492e2c4808d291f4cfcad0c9ae9767f746de7e506c9e781eccff77deb3aca35"
   },
   "src/L2/L1Block.sol": {
     "initCodeHash": "0xc235fb3a8e353e06c49a9743ce48a31cc71ee85ac6378d38ba1db6fe71650b2d",

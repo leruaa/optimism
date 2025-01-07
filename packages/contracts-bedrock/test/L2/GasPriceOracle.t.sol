@@ -367,7 +367,17 @@ contract GasPriceOracleIsthmus_Test is GasPriceOracle_Test {
         super.setUp();
 
         bytes memory calldataPacked = Encoding.encodeSetL1BlockValuesIsthmus(
-            baseFeeScalar, blobBaseFeeScalar, sequenceNumber, timestamp, number, baseFee, blobBaseFee, hash, batcherHash, operatorFeeScalar, operatorFeeConstant
+            baseFeeScalar,
+            blobBaseFeeScalar,
+            sequenceNumber,
+            timestamp,
+            number,
+            baseFee,
+            blobBaseFee,
+            hash,
+            batcherHash,
+            operatorFeeScalar,
+            operatorFeeConstant
         );
 
         vm.prank(depositor);
