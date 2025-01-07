@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/ethereum-optimism/optimism/kurtosis-devnet/pkg/build"
 	"github.com/ethereum-optimism/optimism/kurtosis-devnet/pkg/kurtosis"
@@ -245,12 +247,15 @@ func deploy(ctx context.Context, cfg *config, r io.Reader) error {
 		return fmt.Errorf("error copying deployment input: %w", err)
 	}
 
-	kurtosisDeployer := kurtosis.NewKurtosisDeployer(
+	kurtosisDeployer, err := kurtosis.NewKurtosisDeployer(
 		kurtosis.WithKurtosisBaseDir(cfg.baseDir),
 		kurtosis.WithKurtosisDryRun(cfg.dryRun),
 		kurtosis.WithKurtosisPackageName(cfg.kurtosisPackage),
 		kurtosis.WithKurtosisEnclave(cfg.enclave),
 	)
+	if err != nil {
+		return fmt.Errorf("error creating kurtosis deployer: %w", err)
+	}
 
 	env, err := kurtosisDeployer.Deploy(ctx, buf)
 	if err != nil {
@@ -303,6 +308,40 @@ func mainAction(c *cli.Context) error {
 	return mainFunc(cfg)
 }
 
+func defaultDockerHost() string {
+	if runtime.GOOS == "darwin" || runtime.GOOS == "windows" {
+		// Docker Desktop supports this.
+		return "host.docker.internal"
+	}
+
+	// On Linux, find docker0 bridge network
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		// we're parsing main flags here, it's ok to panic.
+		panic(fmt.Errorf("error getting interfaces, consider setting --local-hostname manually: %w", err))
+	}
+
+	for _, iface := range ifaces {
+		// docker0 is the default bridge network
+		if iface.Name == "docker0" {
+			addrs, err := iface.Addrs()
+			if err != nil || len(addrs) == 0 {
+				continue
+			}
+			// Get the first IP address
+			ip, _, err := net.ParseCIDR(addrs[0].String())
+			if err != nil {
+				continue
+			}
+			return ip.String()
+		}
+	}
+
+	// If we didn't find docker0, we're desperate at this point.
+	// It might still work if we're on host network mode.
+	return "localhost"
+}
+
 func getFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
@@ -335,7 +374,7 @@ func getFlags() []cli.Flag {
 		&cli.StringFlag{
 			Name:  "local-hostname",
 			Usage: "DNS for localhost from Kurtosis perspective (optional)",
-			Value: "host.docker.internal",
+			Value: defaultDockerHost(),
 		},
 	}
 }
