@@ -66,9 +66,9 @@ contract L1Block is ISemver, IGasToken {
     /// @notice The constant value applied to the operator fee.
     uint64 public operatorFeeConstant;
 
-    /// @custom:semver 1.5.1-beta.5
+    /// @custom:semver 1.5.1-beta.6
     function version() public pure virtual returns (string memory) {
-        return "1.5.1-beta.5";
+        return "1.5.1-beta.6";
     }
 
     /// @notice Returns the gas paying token, its decimals, name and symbol.
