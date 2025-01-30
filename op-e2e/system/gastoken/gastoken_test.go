@@ -40,6 +40,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestCustomGasToken_Standard(t *testing.T) {
+	t.Skip("Custom gas token not supported")
 	testCustomGasToken(t, config.AllocTypeStandard)
 }
 
