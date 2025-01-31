@@ -213,7 +213,7 @@ func (info *L1BlockInfo) marshalBinaryInterop() ([]byte, error) {
 // +---------+--------------------------+
 
 func (info *L1BlockInfo) marshalBinaryIsthmus() ([]byte, error) {
-	w := bytes.NewBuffer(make([]byte, 0, L1InfoIsthmusLen)) // Ecotone and Isthmus have the same length
+	w := bytes.NewBuffer(make([]byte, 0, L1InfoIsthmusLen))
 	if err := solabi.WriteSignature(w, []byte(L1InfoFuncIsthmusBytes4)); err != nil {
 		return nil, err
 	}
@@ -451,6 +451,7 @@ func L1InfoDeposit(rollupCfg *rollup.Config, sysCfg eth.SystemConfig, seqNumber 
 	}
 	var data []byte
 	if isEcotoneButNotFirstBlock(rollupCfg, l2Timestamp) {
+		isIsthmusActivated := isIsthmusButNotFirstBlock(rollupCfg, l2Timestamp)
 		l1BlockInfo.BlobBaseFee = block.BlobBaseFee()
 		if l1BlockInfo.BlobBaseFee == nil {
 			// The L2 spec states to use the MIN_BLOB_GASPRICE from EIP-4844 if not yet active on L1.
@@ -462,27 +463,33 @@ func L1InfoDeposit(rollupCfg *rollup.Config, sysCfg eth.SystemConfig, seqNumber 
 		}
 		l1BlockInfo.BlobBaseFeeScalar = scalars.BlobBaseFeeScalar
 		l1BlockInfo.BaseFeeScalar = scalars.BaseFeeScalar
+
+		if isIsthmusActivated {
+			operatorFee := sysCfg.OperatorFee()
+			l1BlockInfo.OperatorFeeScalar = operatorFee.Scalar
+			l1BlockInfo.OperatorFeeConstant = operatorFee.Constant
+		}
+
 		if isInteropButNotFirstBlock(rollupCfg, l2Timestamp) {
 			out, err := l1BlockInfo.marshalBinaryInterop()
 			if err != nil {
 				return nil, fmt.Errorf("failed to marshal Interop l1 block info: %w", err)
 			}
 			data = out
-		} else if isIsthmusButNotFirstBlock(rollupCfg, l2Timestamp) {
-			operatorFee := sysCfg.OperatorFee()
-			l1BlockInfo.OperatorFeeScalar = operatorFee.Scalar
-			l1BlockInfo.OperatorFeeConstant = operatorFee.Constant
-			out, err := l1BlockInfo.marshalBinaryIsthmus()
-			if err != nil {
-				return nil, fmt.Errorf("failed to marshal Isthmus l1 block info: %w", err)
-			}
-			data = out
 		} else {
-			out, err := l1BlockInfo.marshalBinaryEcotone()
-			if err != nil {
-				return nil, fmt.Errorf("failed to marshal Ecotone l1 block info: %w", err)
+			if isIsthmusActivated {
+				out, err := l1BlockInfo.marshalBinaryIsthmus()
+				if err != nil {
+					return nil, fmt.Errorf("failed to marshal Isthmus l1 block info: %w", err)
+				}
+				data = out
+			} else {
+				out, err := l1BlockInfo.marshalBinaryEcotone()
+				if err != nil {
+					return nil, fmt.Errorf("failed to marshal Ecotone l1 block info: %w", err)
+				}
+				data = out
 			}
-			data = out
 		}
 	} else {
 		l1BlockInfo.L1FeeOverhead = sysCfg.Overhead

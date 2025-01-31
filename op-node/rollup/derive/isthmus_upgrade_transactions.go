@@ -1,10 +1,12 @@
 package derive
 
 import (
+	"bytes"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum-optimism/optimism/op-service/predeploys"
-	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum-optimism/optimism/op-service/solabi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -38,6 +40,12 @@ var (
 	// Enable Isthmus Parameters
 	enableIsthmusSource = UpgradeDepositSource{Intent: "Isthmus: Gas Price Oracle Set Isthmus"}
 	enableIsthmusInput  = crypto.Keccak256([]byte("setIsthmus()"))[:4]
+
+	operatorFeeVaultEncodedArgs = encodeFeeVaultConstructorArgs(
+		predeploys.BaseFeeVaultAddr,
+		big.NewInt(0),
+		uint8(1), // L2
+	)
 )
 
 func IsthmusNetworkUpgradeTransactions() ([]hexutil.Bytes, error) {
@@ -80,16 +88,6 @@ func IsthmusNetworkUpgradeTransactions() ([]hexutil.Bytes, error) {
 	upgradeTxns = append(upgradeTxns, deployGasPriceOracle)
 
 	// Deploy Operator Fee vault transaction
-	encodedArgs, err := encodeFeeVaultConstructorArgs(
-		predeploys.BaseFeeVaultAddr,
-		big.NewInt(0),
-		uint8(1), // L2
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
 	deployOperatorFeeVault, err := types.NewTx(&types.DepositTx{
 		SourceHash:          deployOperatorFeeVaultSource.SourceHash(),
 		From:                OperatorFeeVaultDeployerAddress,
@@ -98,7 +96,7 @@ func IsthmusNetworkUpgradeTransactions() ([]hexutil.Bytes, error) {
 		Value:               big.NewInt(0),
 		Gas:                 500_000,
 		IsSystemTransaction: false,
-		Data:                append(operatorFeeVaultDeploymentBytecode, encodedArgs...),
+		Data:                append(operatorFeeVaultDeploymentBytecode, operatorFeeVaultEncodedArgs...),
 	}).MarshalBinary()
 
 	if err != nil {
@@ -182,17 +180,16 @@ func IsthmusNetworkUpgradeTransactions() ([]hexutil.Bytes, error) {
 	return upgradeTxns, nil
 }
 
-func encodeFeeVaultConstructorArgs(address common.Address, minWithdrawalAmount *big.Int, withdrawalNetwork uint8) ([]byte, error) {
-	var (
-		addressType, _             = abi.NewType("address", "", nil)
-		minWithdrawalAmountType, _ = abi.NewType("uint256", "", nil)
-		withdrawalNetworkType, _   = abi.NewType("uint8", "", nil)
-		feeVaultArgs               = abi.Arguments{
-			{Type: addressType},
-			{Type: minWithdrawalAmountType},
-			{Type: withdrawalNetworkType},
-		}
-	)
-
-	return feeVaultArgs.Pack(address, minWithdrawalAmount, withdrawalNetwork)
+func encodeFeeVaultConstructorArgs(address common.Address, minWithdrawalAmount *big.Int, withdrawalNetwork uint8) []byte {
+	buf := bytes.NewBuffer(make([]byte, 0, 20+64+8))
+	if err := solabi.WriteAddress(buf, address); err != nil {
+		panic(fmt.Errorf("failed to write address argument: %w", err))
+	}
+	if err := solabi.WriteUint256(buf, minWithdrawalAmount); err != nil {
+		panic(fmt.Errorf("failed to write min withdrawal amount argument: %w", err))
+	}
+	if err := solabi.WriteUint8(buf, withdrawalNetwork); err != nil {
+		panic(fmt.Errorf("failed to write withdrawal network argument: %w", err))
+	}
+	return buf.Bytes()
 }
