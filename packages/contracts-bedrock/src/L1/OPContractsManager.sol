@@ -818,12 +818,8 @@ contract OPContractsManager is ISemver {
             ISystemConfig.initialize,
             (
                 _input.roles.systemConfigOwner,
-                ISystemConfig.FeeScalars({
-                    baseFeeScalar: _input.basefeeScalar,
-                    blobBaseFeeScalar: _input.blobBasefeeScalar,
-                    operatorFeeScalar: _input.operatorFeeScalar,
-                    operatorFeeConstant: _input.operatorFeeConstant
-                }),
+                _input.basefeeScalar,
+                _input.blobBasefeeScalar,
                 bytes32(uint256(uint160(_input.roles.batcher))), // batcherHash
                 _input.gasLimit,
                 _input.roles.unsafeBlockSigner,

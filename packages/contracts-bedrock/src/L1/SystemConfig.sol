@@ -44,13 +44,6 @@ contract SystemConfig is OwnableUpgradeable, ISemver {
         address optimismMintableERC20Factory;
     }
 
-    struct FeeScalars {
-        uint32 baseFeeScalar;
-        uint32 blobBaseFeeScalar;
-        uint32 operatorFeeScalar;
-        uint64 operatorFeeConstant;
-    }
-
     /// @notice Version identifier, used for upgrades.
     uint256 public constant VERSION = 0;
 
@@ -158,18 +151,20 @@ contract SystemConfig is OwnableUpgradeable, ISemver {
 
     /// @notice Initializer.
     ///         The resource config must be set before the require check.
-    /// @param _owner               Initial owner of the contract.
-    /// @param _feeScalars          Initial basefee scalar value.
-    /// @param _batcherHash         Initial batcher hash.
-    /// @param _gasLimit            Initial gas limit.
-    /// @param _unsafeBlockSigner   Initial unsafe block signer address.
-    /// @param _config              Initial ResourceConfig.
-    /// @param _batchInbox          Batch inbox address. An identifier for the op-node to find
-    ///                             canonical data.
-    /// @param _addresses           Set of L1 contract addresses. These should be the proxies.
+    /// @param _owner             Initial owner of the contract.
+    /// @param _basefeeScalar     Initial basefee scalar value.
+    /// @param _blobbasefeeScalar Initial blobbasefee scalar value.
+    /// @param _batcherHash       Initial batcher hash.
+    /// @param _gasLimit          Initial gas limit.
+    /// @param _unsafeBlockSigner Initial unsafe block signer address.
+    /// @param _config            Initial ResourceConfig.
+    /// @param _batchInbox        Batch inbox address. An identifier for the op-node to find
+    ///                           canonical data.
+    /// @param _addresses         Set of L1 contract addresses. These should be the proxies.
     function initialize(
         address _owner,
-        FeeScalars memory _feeScalars,
+        uint32 _basefeeScalar,
+        uint32 _blobbasefeeScalar,
         bytes32 _batcherHash,
         uint64 _gasLimit,
         address _unsafeBlockSigner,
@@ -185,12 +180,8 @@ contract SystemConfig is OwnableUpgradeable, ISemver {
 
         // These are set in ascending order of their UpdateTypes.
         _setBatcherHash(_batcherHash);
-        _setGasConfigEcotone({
-            _basefeeScalar: _feeScalars.baseFeeScalar,
-            _blobbasefeeScalar: _feeScalars.blobBaseFeeScalar
-        });
+        _setGasConfigEcotone({ _basefeeScalar: _basefeeScalar, _blobbasefeeScalar: _blobbasefeeScalar });
         _setGasLimit(_gasLimit);
-        _setOperatorFeeScalars(_feeScalars.operatorFeeScalar, _feeScalars.operatorFeeConstant);
 
         Storage.setAddress(UNSAFE_BLOCK_SIGNER_SLOT, _unsafeBlockSigner);
         Storage.setAddress(BATCH_INBOX_SLOT, _batchInbox);

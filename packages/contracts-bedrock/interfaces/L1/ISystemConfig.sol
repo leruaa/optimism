@@ -22,13 +22,6 @@ interface ISystemConfig {
         address optimismMintableERC20Factory;
     }
 
-    struct FeeScalars {
-        uint32 baseFeeScalar;
-        uint32 blobBaseFeeScalar;
-        uint32 operatorFeeScalar;
-        uint64 operatorFeeConstant;
-    }
-
     event ConfigUpdate(uint256 indexed version, UpdateType indexed updateType, bytes data);
     event Initialized(uint8 version);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -54,7 +47,8 @@ interface ISystemConfig {
     function getAddresses() external view returns (Addresses memory);
     function initialize(
         address _owner,
-        FeeScalars memory _feeScalars,
+        uint32 _basefeeScalar,
+        uint32 _blobbasefeeScalar,
         bytes32 _batcherHash,
         uint64 _gasLimit,
         address _unsafeBlockSigner,

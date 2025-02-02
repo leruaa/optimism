@@ -291,31 +291,14 @@
         "type": "address"
       },
       {
-        "components": [
-          {
-            "internalType": "uint32",
-            "name": "baseFeeScalar",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "blobBaseFeeScalar",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "operatorFeeScalar",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint64",
-            "name": "operatorFeeConstant",
-            "type": "uint64"
-          }
-        ],
-        "internalType": "struct SystemConfig.FeeScalars",
-        "name": "_feeScalars",
-        "type": "tuple"
+        "internalType": "uint32",
+        "name": "_basefeeScalar",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_blobbasefeeScalar",
+        "type": "uint32"
       },
       {
         "internalType": "bytes32",

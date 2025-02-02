@@ -31,12 +31,8 @@ contract SystemConfig_GasLimitBoundaries_Invariant is Test {
                 configImpl.initialize,
                 (
                     address(0xbeef), // owner
-                    ISystemConfig.FeeScalars({
-                        baseFeeScalar: 2100, // overhead
-                        blobBaseFeeScalar: 1000000, // scalar
-                        operatorFeeScalar: 0, // operator fee scalar
-                        operatorFeeConstant: 0 // operator fee constant
-                     }),
+                    2100, // overhead
+                    1000000, // scalar
                     bytes32(hex"abcd"), // batcher hash
                     30_000_000, // gas limit
                     address(1), // unsafe block signer
