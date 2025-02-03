@@ -79,6 +79,7 @@ func TestDependencies(t *testing.T) {
 				BaseFeeVaultRecipient:      addrFor(devkeys.BaseFeeVaultRecipientRole),
 				L1FeeVaultRecipient:        addrFor(devkeys.L1FeeVaultRecipientRole),
 				SequencerFeeVaultRecipient: addrFor(devkeys.SequencerFeeVaultRecipientRole),
+				OperatorFeeVaultRecipient:  addrFor(devkeys.OperatorFeeVaultRecipientRole),
 				Eip1559DenominatorCanyon:   standard.Eip1559DenominatorCanyon,
 				Eip1559Denominator:         standard.Eip1559Denominator,
 				Eip1559Elasticity:          standard.Eip1559Elasticity,

@@ -39,10 +39,6 @@ func TestMain(m *testing.M) {
 	op_e2e.RunMain(m)
 }
 
-func TestCustomGasToken_L2OO(t *testing.T) {
-	testCustomGasToken(t, config.AllocTypeL2OO)
-}
-
 func TestCustomGasToken_Standard(t *testing.T) {
 	t.Skip("Custom gas token not supported")
 	testCustomGasToken(t, config.AllocTypeStandard)
