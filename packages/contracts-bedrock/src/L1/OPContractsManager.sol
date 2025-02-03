@@ -60,6 +60,9 @@ contract OPContractsManager is ISemver {
         uint256 disputeSplitDepth;
         Duration disputeClockExtension;
         Duration disputeMaxClockDuration;
+        // Operator fee scalars.
+        uint32 operatorFeeScalar;
+        uint64 operatorFeeConstant;
     }
 
     /// @notice The full set of outputs from deploying a new OP Stack chain.
